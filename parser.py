@@ -35,7 +35,7 @@ graph = {}
 nodes = []
 
 nodes.append({"name": "Hot Chip",
-              "rating": "1",
+              "rating": "100",
               "url": "http://www.google.com"})
 
 for a in test:

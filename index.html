@@ -45,8 +45,9 @@
                       var w = 10
                       ctx.fillStyle = (node.data.alone) ? "orange" : "#000"
                       ctx.beginPath()
-                      ctx.arc(pt.x, pt.y, 10, 0, Math.PI*2, true)
-                      ctx.fillText(node.data.name, pt.x - (node.data.name.length * 2.5), pt.y + 25)
+                      console.log(node.data.weight)
+                      ctx.arc(pt.x, pt.y, (node.data.weight)/4.0, 0, Math.PI*2, true)
+                      ctx.fillText(node.data.name, pt.x - (node.data.name.length * 2.66), pt.y + (node.data.weight)/4.0 + 15)
                       ctx.closePath()
                       ctx.fill()
                     })    			
@@ -114,7 +115,7 @@
                 
                 for(var i = 0; i<json.nodes.length; i++)
                 {
-                  sys.addNode(json.nodes[i].name, {name:json.nodes[i].name})
+                  sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, weight: json.nodes[i].rating})
                   if(i>0)
                   {
                     sys.addEdge(json.nodes[0].name, json.nodes[i].name)
