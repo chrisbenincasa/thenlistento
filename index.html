@@ -1,72 +1,141 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-	"http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 	<title>Music Reommendatator 0.1</title>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
-  <script type="text/javascript" charset="utf-8" src="d3/d3.v2.js"></script>
-	
+	<script src="./arbor/lib/arbor.js" type="text/javascript"></script>
+	<script src="./arbor/lib/arbor-tween.js" type="text/javascript" charset="utf-8"></script>
+	<script src="scripts/main.js" type="text/javascript" charset="utf-8"></script>
 	<script type="text/javascript" charset="utf-8">
+	
 		    $.ajax({
-    			url: 'script.py',
+    			url: 'parser.py',
     			type: 'GET',
-    			//dataType: 'json',
     			success: function(result)
     			{
-    			  var test = result;
-    			  console.log(test);
-    			  $("#content").html("");
-    				var width = 960,
-        		    height = 500;
+    			    $("#content").html("");
+                var Renderer = function(canvas){
+                var canvas = $(canvas).get(0)
+                var ctx = canvas.getContext("2d");
+                var particleSystem
 
-        		var color = d3.scale.category20();
+                var that = {
+                  init:function(system){
+                    particleSystem = system
+                    particleSystem.screenSize(canvas.width, canvas.height) 
+                    particleSystem.screenPadding(80)
+                    that.initMouseHandling()
+                  },
 
-        		var force = d3.layout.force()
-        		    .charge(-200)
-        		    .linkDistance(150).gravity(0.2).friction(0.9)
-        		    .size([width, height]);
+                  redraw:function(){
+                    ctx.fillStyle = "white"
+                    ctx.fillRect(0,0, canvas.width, canvas.height)
 
-        		var svg = d3.select("#content").append("svg")
-        		    .attr("width", width)
-        		    .attr("height", height);
+                    particleSystem.eachEdge(function(edge, pt1, pt2){
+                      ctx.strokeStyle = "rgba(0,0,0, .333)"
+                      ctx.lineWidth = 1
+                      ctx.beginPath()
+                      ctx.moveTo(pt1.x, pt1.y)
+                      ctx.lineTo(pt2.x, pt2.y)
+                      ctx.stroke()
+                    })
 
-        		d3.json("bands.json", function(json) {
-        		  force
-        		      .nodes(json.nodes)
-        		      .links(json.links)
-        		      .start();
+                    particleSystem.eachNode(function(node, pt){
+                      var w = 10
+                      ctx.fillStyle = (node.data.alone) ? "orange" : "#000"
+                      ctx.beginPath()
+                      ctx.arc(pt.x, pt.y, 10, 0, Math.PI*2, true)
+                      ctx.fillText(node.data.name, pt.x - (node.data.name.length * 2.5), pt.y + 25)
+                      ctx.closePath()
+                      ctx.fill()
+                    })    			
+                  },
 
-        		  var link = svg.selectAll("line.link")
-        		      .data(json.links)
-        		    .enter().append("line")
-        		      .attr("class", "link")
-        		      .style("stroke-width", function(d) { return Math.sqrt(d.value)/4.0; });
+                  initMouseHandling:function(){
+                    var dragged = null;
+                    var handler = {
+                      clicked:function(e){
+                        var pos = $(canvas).offset();
+                        _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+                        dragged = particleSystem.nearest(_mouseP);
 
-        		  var node = svg.selectAll("circle.node")
-        		      .data(json.nodes)
-        		    .enter().append("circle")
-        		      .attr("class", "node")
-        		      .attr("r", 5)
-        		      .style("fill", function(d) { return color(d.group); })
-        		      .call(force.drag);
-        		      
-    		      force.on("tick", function() {
-        		    link.attr("x1", function(d) { return d.source.x; })
-        		        .attr("y1", function(d) { return d.source.y; })
-        		        .attr("x2", function(d) { return d.target.x; })
-        		        .attr("y2", function(d) { return d.target.y; });
+                        if (dragged && dragged.node !== null){
+                          // while we're dragging, don't let physics move the node
+                          dragged.node.fixed = true
+                        }
 
-        		    node.attr("cx", function(d) { return d.x; })
-        		        .attr("cy", function(d) { return d.y; });
-            		  });
-    				});
+                        $(canvas).bind('mousemove', handler.dragged)
+                        $(window).bind('mouseup', handler.dropped)
+
+                        return false
+                      },
+                      dragged:function(e){
+                        var pos = $(canvas).offset();
+                        var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+
+                        if (dragged && dragged.node !== null){
+                          var p = particleSystem.fromScreen(s)
+                          dragged.node.p = p
+                        }
+
+                        return false
+                      },
+
+                      dropped:function(e){
+                        if (dragged===null || dragged.node===undefined) return
+                        if (dragged.node !== null) dragged.node.fixed = false
+                        dragged.node.tempMass = 1000
+                        dragged = null
+                        $(canvas).unbind('mousemove', handler.dragged)
+                        $(window).unbind('mouseup', handler.dropped)
+                        _mouseP = null
+                        return false
+                      }
+                    }
+
+                    $(canvas).mousedown(handler.clicked);
+
+                  },
+
+                }
+                return that
+              }    
+
+                var sys = arbor.ParticleSystem(1000, 600, 0.5)
+                sys.parameters({gravity:true, precision: 1.0})
+                sys.renderer = Renderer("#viewport") 
+                                
+                var json = jQuery.parseJSON(result)
+                
+                //console.log(json)
+                var canvas = $("#viewport").get(0)
+                var ctx = canvas.getContext("2d");
+                
+                for(var i = 0; i<json.nodes.length; i++)
+                {
+                  sys.addNode(json.nodes[i].name, {name:json.nodes[i].name})
+                  if(i>0)
+                  {
+                    sys.addEdge(json.nodes[0].name, json.nodes[i].name)
+                  }
+                }
+                
+                var index = 0
+                sys.eachNode(function(node,pt){
+                  console.log(json.nodes[index])
+                  index++
+                })
+                                
     			},
+    			
     			error: function(xhr, ajaxOptions, thrownError)
     			{
     				alert(thrownError);
     			}
     		});
+    		
+    		
 		
 	</script>
 	
@@ -85,6 +154,7 @@
 <h3>test request for similar artists to Hot Chip</h3>
 <div id="content">Loading...</div>
 
+<canvas id="viewport" width="800" height="600"></canvas>
 	
 </body>
 
