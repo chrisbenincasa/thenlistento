@@ -8,10 +8,37 @@
 	<script src="./arbor/lib/arbor-tween.js" type="text/javascript" charset="utf-8"></script>
 	<script src="scripts/main.js" type="text/javascript" charset="utf-8"></script>
 	<script type="text/javascript" charset="utf-8">
-	
+	      function newSearch(node, sys)
+	      {
+	        $.ajax({
+	          url: 'parser.py',
+	          type: 'POST',
+	          data: {artist: node.data.name},
+	          success: function(result)
+	          {
+	            console.log(result)
+	            var json = jQuery.parseJSON(result)
+	            
+	            for(var i = 0; i<json.nodes.length; i++)
+              {
+                sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, weight: json.nodes[i].rating})
+                if(i>0)
+                {
+                  sys.addEdge(node.name, json.nodes[i].name)
+                }
+              }
+	          },
+	          error: function(request, status, error)
+	          {
+	            console.log("oops")
+	          }
+	        })
+	      }
+	      
 		    $.ajax({
     			url: 'parser.py',
-    			type: 'GET',
+    			type: 'POST',
+    			data: {artist: "The Beatles"},
     			success: function(result)
     			{
     			    $("#content").html("");
@@ -43,13 +70,13 @@
 
                     particleSystem.eachNode(function(node, pt){
                       var w = 10
-                      ctx.fillStyle = (node.data.alone) ? "orange" : "#000"
+                      ctx.fillStyle = (node.data.alone) ? "orange" : "#666"
                       ctx.beginPath()
-                      console.log(node.data.weight)
                       ctx.arc(pt.x, pt.y, (node.data.weight)/4.0, 0, Math.PI*2, true)
-                      ctx.fillText(node.data.name, pt.x - (node.data.name.length * 2.66), pt.y + (node.data.weight)/4.0 + 15)
                       ctx.closePath()
                       ctx.fill()
+                      ctx.fillStyle = "#000"
+                      ctx.fillText(node.data.name, pt.x - (node.data.name.length * 2.66), pt.y + (node.data.weight)/4.0 + 15)
                     })    			
                   },
 
@@ -57,6 +84,7 @@
                     var dragged = null;
                     var handler = {
                       clicked:function(e){
+                        console.log($(canvas))
                         var pos = $(canvas).offset();
                         _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
                         dragged = particleSystem.nearest(_mouseP);
@@ -65,7 +93,9 @@
                           // while we're dragging, don't let physics move the node
                           dragged.node.fixed = true
                         }
-
+                        
+                        newSearch(dragged.node, particleSystem)
+                        
                         $(canvas).bind('mousemove', handler.dragged)
                         $(window).bind('mouseup', handler.dropped)
 
@@ -155,7 +185,7 @@
 <h3>test request for similar artists to Hot Chip</h3>
 <div id="content">Loading...</div>
 
-<canvas id="viewport" width="800" height="600"></canvas>
+<canvas id="viewport" width="1024" height="800"></canvas>
 	
 </body>
 
