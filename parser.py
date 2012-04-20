@@ -22,7 +22,7 @@ print
 
 def makeRequest():
 	#xml = "Content-Type: text/xml\n"
-	requestString = "http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&limit=%i&artist=%s&api_key=b25b959554ed76058ac220b7b2e0a026" % (artists_to_return, data['artist'].value)	
+	requestString = "http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&limit=%i&artist=%s&api_key=b25b959554ed76058ac220b7b2e0a026" % (artists_to_return, data['artist'].value.title())	
 	requestString = requestString.replace(" ", "+")	
 	f = urllib2.urlopen(requestString)
 	xml = f.read()
@@ -38,7 +38,7 @@ test = tree.find("similarartists").findall("artist")
 graph = {}
 nodes = []
 
-nodes.append({"name": data["artist"].value,
+nodes.append({"name": data["artist"].value.title(),
               "rating": "100",
               "url": "http://www.google.com"})
 
