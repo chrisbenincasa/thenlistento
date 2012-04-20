@@ -10,10 +10,11 @@ Node sizes are based on the percent match of the returned similar artists. If a 
 
 ##Features to be Added
 
--Advanced search options  
-:  ~Number of artists to return  
-:  ~Search for multiple artists?  
-:  ~Color  
--Caching of results for faster request times  
--Artist image in nodes  
--Prettier interface  
+
+* Advanced Search Options  
+    * Number of artists to return
+    * Search for multiple artists
+    * Color
+* Caching of results for faster request times  
+* Artist image in nodes  
+* Prettier interface  
