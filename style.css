@@ -1,0 +1,94 @@
+body
+{
+  font-family: "Droid Sans", "sans-serif";
+  background-color: #fcfcfc;
+  height: 100%;
+}
+
+line.link
+{
+  stroke: #999;
+}
+
+#container
+{
+  display: none;
+  width: 1024px;
+  margin: 0 auto;
+}
+
+#header_container
+{
+  margin: 0 auto;
+  padding: 20px 0 0;
+  /*width: 800px;*/
+  text-align: center;
+}
+
+#header_container h2, form
+{
+  display: inline;
+}
+
+#header_container form
+{
+}
+
+h2
+{
+  color: #404040;
+  font-size: 22pt;
+  vertical-align: baseline;
+}
+
+input
+{
+  padding: 3px;
+  margin: 2px 2px 0 5px;
+  font-size: 18pt;
+  border: 1px solid lightgray;
+  color: darkred;
+}
+
+input:focus
+{
+  outline: thin solid lightblue;
+}
+
+#advanced_search
+{
+  display: block;
+  margin: 5px 0;
+  color: #666;
+}
+
+#advanced_search:hover
+{
+  color: #000;
+}
+
+#other_wrap
+{
+  width: 600px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+#adv_search_opts
+{
+
+  display: none;
+  background-color: #c0c0c0;
+  padding: 15px 0;
+  -webkit-box-shadow: inset 0px 5px 10px 0px #555;
+  -moz-box-shadow: inset 0px 5px 10px 0px #555;
+  box-shadow: inset 0px 5px 10px 0px #555;
+
+}
+
+#adv_search_opts input
+{
+  padding: 0;
+  font-size: 14pt;
+  width: 50px;
+}
