@@ -91,4 +91,5 @@ input:focus
   padding: 0;
   font-size: 14pt;
   width: 50px;
+  border: 1px solid darkgray;
 }
