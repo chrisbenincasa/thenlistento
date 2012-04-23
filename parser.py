@@ -17,6 +17,7 @@ artists_to_return = 10
 print "Content-Type: text/html;charset=UTF-8\n"
 
 data = cgi.FieldStorage()
+print data
 
 def makeRequest():
 	#xml = "Content-Type: text/xml\n"
