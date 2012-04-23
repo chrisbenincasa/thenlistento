@@ -11,7 +11,6 @@ $(document).ready(function(){
       data: {artist: node.data.name},
       success: function(result)
       {
-        console.log(result)
         var json = jQuery.parseJSON(result)
         
         for(var i = 0; i<json.nodes.length; i++)
@@ -33,12 +32,38 @@ $(document).ready(function(){
     var sys;  
     $("input").keypress(function(e){
       if(e.which == 13)
-      {
+      {        
         e.preventDefault() 
+        
+        //validate form
+        var intRegex = /^\d+$/;
+        var inputLimit = $("input#limit").val()
+        if(inputLimit.length > 0 && intRegex.test(inputLimit) == false)
+        {
+          //that's not a number!
+          return
+        }
+        else if (inputLimit > 20)
+        {
+          //too big
+          alert("WHAT")
+          return
+        } 
+        else if (inputLimit == 0 || inputLimit.length == 0) {
+          //limit defaults to 10 if nothing is entered
+          inputLimit = 10;
+        }
+        
+        //hide advanced search options if visible upon search
+        if($("#adv_search_opts").is(":visible"))
+        {
+          $("#adv_search_opts").slideToggle()
+        }
+                
         $.ajax({
     			url: 'parser_class.py',
     			type: 'POST',
-    			data: {artist: $("input#name").val()},
+    			data: {artist: $("input#name").val(), limit: inputLimit},
     			success: function(result)
     			{
             var Renderer = function(canvas){
@@ -151,7 +176,7 @@ $(document).ready(function(){
               })
             } else {
               sys = arbor.ParticleSystem(750, 600, 0.5)
-              sys.parameters({gravity:true, precision: 0.65})
+              sys.parameters({gravity:true, precision: 0.75})
               sys.renderer = Renderer("#viewport")
             }
     
@@ -176,8 +201,10 @@ $(document).ready(function(){
               console.log(json.nodes[index])
               index++
             });
-        
-            $("#container").fadeIn()
+          
+            console.log(sys.getNode("Paul & Linda Mccartney"))
+            
+            $("#container").fadeIn(1000, "easeInQuad")
                       
     	    },
 

@@ -38,7 +38,7 @@ class LastFmQuery(object):
 print "Content-Type: text/html;charset=UTF-8\n"
 
 data = cgi.FieldStorage()
-options = {"artist": data["artist"].value.title(), "limit": 10}
+options = {"artist": data["artist"].value.title(), "limit": int(data["limit"].value)}
 apikey = "1a144ff8653821952e65b0cda2fef616"
 
 myRequest = LastFmQuery(apikey, options)
