@@ -2,18 +2,21 @@
 <html>
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-	<title>Music Reommendatator 0.1</title>
+	<title>ThenListenTo</title>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+	<script src="./scripts/jquery.easing.1.3.js" type="text/javascript" charset="utf-8"></script>
 	<script src="./arbor/lib/arbor.js" type="text/javascript"></script>
 	<script src="./arbor/lib/arbor-tween.js" type="text/javascript" charset="utf-8"></script>
-	<link rel="stylesheet" href="../Resources/960 grid system/code/css/reset.css" type="text/css" media="screen" title="no title" charset="utf-8">
+	<script src="./scripts/main.js" charset="utf-8" type="text/javascript"></script>
   <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
-  <script type="text/javascript" charset="utf-8">
+  <link rel="stylesheet" href="./reset.css" type="text/css" media="screen" charset="utf-8">
+  <link rel="stylesheet" href="./style.css" type="text/css" media="screen">
+  <!--<script type="text/javascript" charset="utf-8">
   $(document).ready(function(){
 	      function newSearch(node, sys)
 	      {
 	        $.ajax({
-	          url: 'parser.py',
+	          url: 'parser_class.py',
 	          type: 'POST',
 	          data: {artist: node.data.name},
 	          success: function(result)
@@ -37,219 +40,166 @@
 	        })
 	      }
 	    var sys;  
-	    $("#band_search").submit(function(e){
+	    $("input").keypress(function(e){
+	      if(e.which == 13)
+	      {
 	        e.preventDefault() 
 		      $.ajax({
-      			url: 'parser.py',
+      			url: 'parser_class.py',
       			type: 'POST',
       			data: {artist: $("input#name").val()},
       			success: function(result)
       			{
-      			    $("#content").html("");
-                  var Renderer = function(canvas){
-                  var canvas = $(canvas).get(0)
-                  var ctx = canvas.getContext("2d");
-                  var particleSystem
+              var Renderer = function(canvas){
+              var canvas = $(canvas).get(0)
+              var ctx = canvas.getContext("2d");
+              var particleSystem
 
-                  var that = {
-                    init:function(system){
-                      particleSystem = system
-                      particleSystem.screenSize(canvas.width, canvas.height) 
-                      particleSystem.screenPadding(80)
-                      that.initMouseHandling()
+              var that = {
+                init:function(system){
+                  particleSystem = system
+                  particleSystem.screenSize(canvas.width, canvas.height) 
+                  particleSystem.screenPadding(80)
+                  that.initMouseHandling()
+                },
+
+                redraw:function(){
+                  ctx.fillStyle = "white"
+                  ctx.fillRect(0,0, canvas.width, canvas.height)
+
+                  particleSystem.eachEdge(function(edge, pt1, pt2){
+                    ctx.strokeStyle = "rgba(0,0,0, .333)"
+                    ctx.lineWidth = 1
+                    ctx.beginPath()
+                    ctx.moveTo(pt1.x, pt1.y)
+                    ctx.lineTo(pt2.x, pt2.y)
+                    ctx.stroke()
+                  })
+
+                  particleSystem.eachNode(function(node, pt)
+                  {
+                    var w = 10
+                    ctx.fillStyle = "#666"
+                    ctx.beginPath()
+                    ctx.arc(pt.x, pt.y, (node.data.weight)/4.0, 0, Math.PI*2, true)
+                    ctx.closePath()
+                    ctx.fill()
+                    ctx.fillStyle = "#404040"
+                    ctx.font = "14pt Calibri"
+                    ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + (node.data.weight)/4.0 + 20)
+                  })    			
+                },
+
+                initMouseHandling:function(){
+                  var dragged = null;
+                  var handler = {
+                    hovered: function(e){
+                      console.log("test")
                     },
+                    
+                    clicked:function(e){
+                      var pos = $(canvas).offset();
+                      _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+                      dragged = particleSystem.nearest(_mouseP);
 
-                    redraw:function(){
-                      ctx.fillStyle = "white"
-                      ctx.fillRect(0,0, canvas.width, canvas.height)
+                      if (dragged && dragged.node !== null){
+                        // while we're dragging, don't let physics move the node
+                        dragged.node.fixed = true
+                      }
+                                              
+                      timeoutId = setTimeout(handler.search, 1000)
+                      
+                      $(canvas).bind('mousemove', handler.dragged)
+                      $(window).bind('mouseup', handler.dropped)
 
-                      particleSystem.eachEdge(function(edge, pt1, pt2){
-                        ctx.strokeStyle = "rgba(0,0,0, .333)"
-                        ctx.lineWidth = 1
-                        ctx.beginPath()
-                        ctx.moveTo(pt1.x, pt1.y)
-                        ctx.lineTo(pt2.x, pt2.y)
-                        ctx.stroke()
-                      })
-
-                      particleSystem.eachNode(function(node, pt){
-                        var w = 10
-                        ctx.fillStyle = "#666"
-                        ctx.beginPath()
-                        ctx.arc(pt.x, pt.y, (node.data.weight)/4.0, 0, Math.PI*2, true)
-                        ctx.closePath()
-                        ctx.fill()
-                        ctx.fillStyle = "#404040"
-                        ctx.font = "14pt Calibri"
-                        ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + (node.data.weight)/4.0 + 20)
-                      })    			
+                      return false
                     },
+                    
+                    search:function(e){
+                      if(dragged.node && dragged.node.fixed == true)
+                      {  
+                        newSearch(dragged.node, particleSystem)
+                      }
+                    },
+                    
+                    dragged:function(e){
+                      var pos = $(canvas).offset();
+                      var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
 
-                    initMouseHandling:function(){
-                      var dragged = null;
-                      var handler = {
-                        hovered: function(e){
-                          console.log("test")
-                        },
-                        
-                        clicked:function(e){
-                          var pos = $(canvas).offset();
-                          _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
-                          dragged = particleSystem.nearest(_mouseP);
-
-                          if (dragged && dragged.node !== null){
-                            // while we're dragging, don't let physics move the node
-                            dragged.node.fixed = true
-                          }
-                                                  
-                          timeoutId = setTimeout(handler.search, 1000)
-                          
-                          $(canvas).bind('mousemove', handler.dragged)
-                          $(window).bind('mouseup', handler.dropped)
-
-                          return false
-                        },
-                        
-                        search:function(e){
-                          if(dragged.node && dragged.node.fixed == true)
-                          {  
-                            newSearch(dragged.node, particleSystem)
-                          }
-                        },
-                        
-                        dragged:function(e){
-                          var pos = $(canvas).offset();
-                          var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
-
-                          if (dragged && dragged.node !== null){
-                            var p = particleSystem.fromScreen(s)
-                            dragged.node.p = p
-                          }
-
-                          return false
-                        },
-
-                        dropped:function(e){
-                          clearTimeout(timeoutId)
-                          if (dragged===null || dragged.node===undefined) return
-                          if (dragged.node !== null) dragged.node.fixed = false
-                          dragged.node.tempMass = 1000
-                          dragged = null
-                          $(canvas).unbind('mousemove', handler.dragged)
-                          $(window).unbind('mouseup', handler.dropped)
-                          _mouseP = null
-                          return false
-                        }
+                      if (dragged && dragged.node !== null){
+                        var p = particleSystem.fromScreen(s)
+                        dragged.node.p = p
                       }
 
-                      $(canvas).mousedown(handler.clicked);
-
+                      return false
                     },
 
-                  }
-                  return that
-                }    
-                  if(typeof sys === "object"){
-        	          sys.eachNode(function(node, pt){
-        	            sys.pruneNode(node)
-        	          })
-        	        } else {
-        	          sys = arbor.ParticleSystem(1000, 600, 0.5)
-                    sys.parameters({gravity:true, precision: 1.0})
-                    sys.renderer = Renderer("#viewport")
-        	        }
-              
-                  var json = jQuery.parseJSON(result)
-                
-                  //console.log(json)
-                  var canvas = $("#viewport").get(0)
-                  var ctx = canvas.getContext("2d");
-                  
-                  for(var i = 0; i<json.nodes.length; i++)
-                  {
-                    sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, weight: json.nodes[i].rating})
-                      
-                    if(i>0)
-                    {
-                      sys.addEdge(json.nodes[0].name, json.nodes[i].name)
+                    dropped:function(e){
+                      clearTimeout(timeoutId)
+                      if (dragged===null || dragged.node===undefined) return
+                      if (dragged.node !== null) dragged.node.fixed = false
+                      dragged.node.tempMass = 1000
+                      dragged = null
+                      $(canvas).unbind('mousemove', handler.dragged)
+                      $(window).unbind('mouseup', handler.dropped)
+                      _mouseP = null
+                      return false
                     }
                   }
-                
-                  var index = 0
-                  sys.eachNode(function(node,pt){
-                    console.log(json.nodes[index])
-                    index++
-                  })
-                $("#container").fadeIn()
-                                
-      			},
-    			
+
+                  $(canvas).mousedown(handler.clicked);
+
+                },
+
+              }
+              return that
+            }    
+              if(typeof sys === "object"){
+    	          sys.eachNode(function(node, pt){
+    	            sys.pruneNode(node)
+    	          })
+    	        } else {
+    	          sys = arbor.ParticleSystem(750, 600, 0.5)
+                sys.parameters({gravity:true, precision: 0.65})
+                sys.renderer = Renderer("#viewport")
+    	        }
+          
+              var json = jQuery.parseJSON(result)
+            
+              //console.log(json)
+              var canvas = $("#viewport").get(0)
+              var ctx = canvas.getContext("2d");
+              
+              for(var i = 0; i<json.nodes.length; i++)
+              {
+                sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, weight: json.nodes[i].rating})
+                  
+                if(i>0)
+                {
+                  sys.addEdge(json.nodes[0].name, json.nodes[i].name)
+                }
+              }
+            
+              var index = 0
+              sys.eachNode(function(node,pt){
+                console.log(json.nodes[index])
+                index++
+              });
+              
+              $("#container").fadeIn()
+                            
+  			    },
+			
       			error: function(xhr, ajaxOptions, thrownError)
       			{
-      				alert(thrownError);
-      			}
-      		});
-  		  })
-    	});
-	</script>
-	
-	<style type="text/css" media="screen">
-	  body
-	  {
-	    font-family: "Droid Sans", "sans-serif";
-	    background-color: #fcfcfc;
-	  }
-	
-	  line.link
-	  {
-	    stroke: #999;
-	  }
-	  
-	  #container
-	  {
-	    display: none;
-	    width: 1024px;
-	    margin: 0 auto;
-	  }
-	  
-	  #header_container
-	  {
-	    margin: 20px auto;
-	    width: 800px;
-	    text-align: center;
-	  }
-	  
-	  #header_container h2, form
-	  {
-	    display: inline;
-	  }
-	  
-	  #header_container form
-	  {
-	  }
-	  
-	  h2
-	  {
-	    color: #404040;
-	    font-size: 22pt;
-	    vertical-align: baseline;
-	  }
-	  
-	  input
-	  {
-	    padding: 3px;
-	    margin: 2px 2px 0 5px;
-	    font-size: 18pt;
-	    border: 1px solid lightgray;
-	    color: #404040;
-	  }
-	  
-	  input:focus
-	  {
-	    outline: none;
-	  }
-	  
-	</style>
+      			  console.log(thrownError)
+    			  }
+          });
+          return false;
+        }
+  	  })
+    });
+	</script>-->
 	
 </head>
 <body>
@@ -257,10 +207,17 @@
     <h2>You like</h2>
     <form id="band_search">
       <input id="name" type="text" placeholder="Enter a Band Name"></input>
-
+      <h2>? Then listen to </h2>
+      <div id="adv_search_wrap">
+        <a id="advanced_search" href="#">Advanced Search</a>
+        <div id="adv_search_opts">
+          <div id="other_wrap">
+            <label for="limit">Limit: </label>
+            <input type="text" name="limit" id="limit" />
+          </div>
+        </div>
+      </div>
     </form>
-    <h2>? Then listen to </h2>
-    <br/><br/>
     <small>Press 'enter' to search.</small>
   </div>
 <div id="container">
@@ -269,6 +226,5 @@
 </body>
 
 </html>
-
 
 
