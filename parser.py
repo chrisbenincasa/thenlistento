@@ -18,8 +18,6 @@ print "Content-Type: text/html;charset=UTF-8\n"
 
 data = cgi.FieldStorage()
 
-print 
-
 def makeRequest():
 	#xml = "Content-Type: text/xml\n"
 	requestString = "http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar&limit=%i&artist=%s&api_key=b25b959554ed76058ac220b7b2e0a026" % (artists_to_return, data['artist'].value.title())	
