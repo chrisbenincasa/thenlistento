@@ -20,7 +20,17 @@ p
   margin-bottom: 10px;
 }
 
-#browser_error, #about
+#nav_wrap
+{
+  float: right;
+}
+
+#nav li
+{
+  display: inline;
+}
+
+#browser_error, #about, #help
 {
   display: none;
   background-color: #c0c0c0;
@@ -32,7 +42,7 @@ p
   z-index: 100;
 }
 
-#error_inner
+#error_inner, #about_inner, #help_inner
 {
   width: 650px;
   margin: 0 auto;
@@ -42,11 +52,6 @@ p
 {
   color: #000;
   margin-bottom: 10px;
-}
-
-line.link
-{
-  stroke: #999;
 }
 
 #container
