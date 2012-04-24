@@ -6,6 +6,9 @@
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 	<title>ThenListenTo</title>
+	<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="./reset.css" type="text/css" media="screen" charset="utf-8">
+  <link rel="stylesheet" href="./style.css" type="text/css" media="screen">
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
 	<script src="./scripts/jquery.easing.1.3.js" type="text/javascript" charset="utf-8"></script>
 	<script type="text/javascript" charset="utf-8">
@@ -26,202 +29,6 @@
 	  }  
 	 });
 	</script>
-	<script src="./arbor/lib/arbor.js" type="text/javascript"></script>
-	<script src="./arbor/lib/arbor-tween.js" type="text/javascript" charset="utf-8"></script>
-	<script src="./scripts/main.js" charset="utf-8" type="text/javascript"></script>
-  <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="./reset.css" type="text/css" media="screen" charset="utf-8">
-  <link rel="stylesheet" href="./style.css" type="text/css" media="screen">
-  <!--<script type="text/javascript" charset="utf-8">
-  $(document).ready(function(){
-	      function newSearch(node, sys)
-	      {
-	        $.ajax({
-	          url: 'parser_class.py',
-	          type: 'POST',
-	          data: {artist: node.data.name},
-	          success: function(result)
-	          {
-	            console.log(result)
-	            var json = jQuery.parseJSON(result)
-	            
-	            for(var i = 0; i<json.nodes.length; i++)
-              {
-                sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, weight: json.nodes[i].rating})
-                if(i>0)
-                {
-                  sys.addEdge(node.name, json.nodes[i].name)
-                }
-              }
-	          },
-	          error: function(request, status, error)
-	          {
-	            console.log("oops")
-	          }
-	        })
-	      }
-	    var sys;  
-	    $("input").keypress(function(e){
-	      if(e.which == 13)
-	      {
-	        e.preventDefault() 
-		      $.ajax({
-      			url: 'parser_class.py',
-      			type: 'POST',
-      			data: {artist: $("input#name").val()},
-      			success: function(result)
-      			{
-              var Renderer = function(canvas){
-              var canvas = $(canvas).get(0)
-              var ctx = canvas.getContext("2d");
-              var particleSystem
-
-              var that = {
-                init:function(system){
-                  particleSystem = system
-                  particleSystem.screenSize(canvas.width, canvas.height) 
-                  particleSystem.screenPadding(80)
-                  that.initMouseHandling()
-                },
-
-                redraw:function(){
-                  ctx.fillStyle = "white"
-                  ctx.fillRect(0,0, canvas.width, canvas.height)
-
-                  particleSystem.eachEdge(function(edge, pt1, pt2){
-                    ctx.strokeStyle = "rgba(0,0,0, .333)"
-                    ctx.lineWidth = 1
-                    ctx.beginPath()
-                    ctx.moveTo(pt1.x, pt1.y)
-                    ctx.lineTo(pt2.x, pt2.y)
-                    ctx.stroke()
-                  })
-
-                  particleSystem.eachNode(function(node, pt)
-                  {
-                    var w = 10
-                    ctx.fillStyle = "#666"
-                    ctx.beginPath()
-                    ctx.arc(pt.x, pt.y, (node.data.weight)/4.0, 0, Math.PI*2, true)
-                    ctx.closePath()
-                    ctx.fill()
-                    ctx.fillStyle = "#404040"
-                    ctx.font = "14pt Calibri"
-                    ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + (node.data.weight)/4.0 + 20)
-                  })    			
-                },
-
-                initMouseHandling:function(){
-                  var dragged = null;
-                  var handler = {
-                    hovered: function(e){
-                      console.log("test")
-                    },
-                    
-                    clicked:function(e){
-                      var pos = $(canvas).offset();
-                      _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
-                      dragged = particleSystem.nearest(_mouseP);
-
-                      if (dragged && dragged.node !== null){
-                        // while we're dragging, don't let physics move the node
-                        dragged.node.fixed = true
-                      }
-                                              
-                      timeoutId = setTimeout(handler.search, 1000)
-                      
-                      $(canvas).bind('mousemove', handler.dragged)
-                      $(window).bind('mouseup', handler.dropped)
-
-                      return false
-                    },
-                    
-                    search:function(e){
-                      if(dragged.node && dragged.node.fixed == true)
-                      {  
-                        newSearch(dragged.node, particleSystem)
-                      }
-                    },
-                    
-                    dragged:function(e){
-                      var pos = $(canvas).offset();
-                      var s = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
-
-                      if (dragged && dragged.node !== null){
-                        var p = particleSystem.fromScreen(s)
-                        dragged.node.p = p
-                      }
-
-                      return false
-                    },
-
-                    dropped:function(e){
-                      clearTimeout(timeoutId)
-                      if (dragged===null || dragged.node===undefined) return
-                      if (dragged.node !== null) dragged.node.fixed = false
-                      dragged.node.tempMass = 1000
-                      dragged = null
-                      $(canvas).unbind('mousemove', handler.dragged)
-                      $(window).unbind('mouseup', handler.dropped)
-                      _mouseP = null
-                      return false
-                    }
-                  }
-
-                  $(canvas).mousedown(handler.clicked);
-
-                },
-
-              }
-              return that
-            }    
-              if(typeof sys === "object"){
-    	          sys.eachNode(function(node, pt){
-    	            sys.pruneNode(node)
-    	          })
-    	        } else {
-    	          sys = arbor.ParticleSystem(750, 600, 0.5)
-                sys.parameters({gravity:true, precision: 0.65})
-                sys.renderer = Renderer("#viewport")
-    	        }
-          
-              var json = jQuery.parseJSON(result)
-            
-              //console.log(json)
-              var canvas = $("#viewport").get(0)
-              var ctx = canvas.getContext("2d");
-              
-              for(var i = 0; i<json.nodes.length; i++)
-              {
-                sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, weight: json.nodes[i].rating})
-                  
-                if(i>0)
-                {
-                  sys.addEdge(json.nodes[0].name, json.nodes[i].name)
-                }
-              }
-            
-              var index = 0
-              sys.eachNode(function(node,pt){
-                console.log(json.nodes[index])
-                index++
-              });
-              
-              $("#container").fadeIn()
-                            
-  			    },
-			
-      			error: function(xhr, ajaxOptions, thrownError)
-      			{
-      			  console.log(thrownError)
-    			  }
-          });
-          return false;
-        }
-  	  })
-    });
-	</script>-->
-	
 </head>
 <body>
   <div id="browser_error">
@@ -230,14 +37,24 @@
     </div>
   </div>
   <div id="about">
-    <h2>HELLO!</h2>
+   <div id="about_inner">
+      <h3>Welcome to ThenListenTo<sup>beta</sup></h3>
+    </div>
   </div>
+  <div id="help">
+    <div id="help_inner">
+      <h3>Need some help with queries?</h3>
+      <h3>Searching Artists</h3>
+      <h3>Searching Genres</h3>
+    </div>
+  </div>
+  <a href="#" id="about_link">About</a>
+  <a href="#" id="help_link">Help</a>
   <div id="main_container">
     <div id="black_overlay"></div>
     <div id="header_container">
-      <a href="#" id="about_link">About</a>
-      <h2>You like</h2>
       <form id="band_search">
+        <h2>You like</h2>
         <input id="name" type="text" placeholder="Enter a Band Name"></input>
         <h2>? Then listen to&hellip;</h2>
         <div id="adv_search_wrap">
@@ -258,7 +75,7 @@
     </div>
   </div>
   
-<script type="text/javascript" charset="utf-8">
+<!-- <script type="text/javascript" charset="utf-8">
   $("#image").click(function(e){
     e.preventDefault();
     var canvas = document.getElementById("viewport");
@@ -266,7 +83,12 @@
     window.location = img
   })
 
-</script>
+</script> -->
+
+<script src="./arbor/lib/arbor.js" type="text/javascript"></script>
+<script src="./arbor/lib/arbor-tween.js" type="text/javascript" charset="utf-8"></script>
+<script src="scripts/util.js" type="text/javascript" charset="utf-8"></script>
+<script src="./scripts/main.js" charset="utf-8" type="text/javascript"></script>
 
 </body>
 
