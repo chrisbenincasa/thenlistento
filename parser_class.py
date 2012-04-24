@@ -9,7 +9,11 @@ Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 
 import sys
 import os
-import urllib2, json, cgi, xml.etree.ElementTree
+import urllib2, cgi, xml.etree.ElementTree
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 class LastFmQuery(object):
   """docstring for LastFmQuery"""
