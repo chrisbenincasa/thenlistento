@@ -5,12 +5,30 @@ $(document).ready(function(){
   
   $("#about_link").click(function(e){
     //$("#black_overlay").fadeIn();
-    $("#about").slideToggle()
+    if($("#help").is(":visible"))
+    {
+      $("#help").slideUp(400, "easeOutCubic", function(){
+        $("#about").slideToggle(400, "easeOutCubic")
+      })
+    } else{
+      $("#about").slideToggle(400, "easeOutCubic")
+    }
   });
   
-  function toTitleCase(str)
+  $("#help_link").click(function(e){
+    if($("#about").is(":visible"))
+    {
+      $("#about").slideUp(400, "easeOutCubic", function(){
+        $("#help").slideToggle(400, "easeOutCubic")
+      })
+    } else{
+      $("#help").slideToggle(400, "easeOutCubic")
+    }
+  });
+  
+  function validateForm()
   {
-      return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    
   }
   
   function newSearch(node, sys)
@@ -42,16 +60,16 @@ $(document).ready(function(){
   /*Declare ParticleSystem so it's scope is retained after AJAX*/
   var sys;
   
-  function trackSearchFunc(){
+  function trackSearchFunc(inputLimit){
     var info = $("input#name").val().split(" by ")
     for(var i = 0; i<info.length; i++)
     {
       info[i] = toTitleCase(info[i])
     }
-    var api = "1a144ff8653821952e65b0cda2fef616"
+    var api = getApiKey()
     var track = info[0].replace(" ", "+")
     var artist = info[1].replace(" ", "+")
-    var getUrl = "http://ws.audioscrobbler.com/2.0/?method=track.getsimilar&artist="+artist+"&track="+track+"&api_key="+api+"&limit=10&format=json"
+    var getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
     
     $.ajax({
       type: "GET",
@@ -89,13 +107,13 @@ $(document).ready(function(){
             {
               ctx.fillStyle = "#2E4F4F"
               ctx.beginPath()
-              ctx.arc(pt.x, pt.y, (node.data.weight)/4.0, 0, Math.PI*2, true)
+              ctx.arc(pt.x, pt.y, Math.sqrt(10*node.data.weight), 0, Math.PI*2, true)
               ctx.closePath()
               ctx.fill()
               ctx.fillStyle = "#000"
               ctx.font = "14pt Calibri"
-              ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + (node.data.weight)/4.0 + 20)
-              ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y - (node.data.weight)/4.0 - 5)
+              ctx.fillText(node.data.name, pt.x - Math.sqrt(node.data.name.length * 10), pt.y + (node.data.weight)/4.0 + 25)
+              ctx.fillText(node.data.artist, pt.x - Math.sqrt(node.data.artist.length * 10), pt.y - (node.data.weight)/4.0 - 10)
             })    			
           },
 
@@ -171,7 +189,7 @@ $(document).ready(function(){
 
             $(canvas).mousedown(handler.clicked);
             $(canvas).dblclick(handler.dblclick);
-          },
+          }
 
         }
         return that
@@ -217,15 +235,7 @@ $(document).ready(function(){
       {        
         e.preventDefault() 
         $("container").fadeOut(100)
-        
-        var trackSearch = /(([a-zA-z0-9]+)\s*)+by\s([a-zA-z0-9]+\s*)+/
-        if(trackSearch.test($("input#name").val()) == true)
-        {
-          console.log("track search")
-          trackSearchFunc();
-          return
-        }
-        
+                
         //validate form
         var intRegex = /^\d+$/;
         var inputLimit = $("input#limit").val()
@@ -248,6 +258,23 @@ $(document).ready(function(){
         if($("#adv_search_opts").is(":visible"))
         {
           $("#adv_search_opts").slideToggle()
+        }
+        
+        var searchQuery = $("input#name").val();
+        
+        var trackSearch = /(([A-z0-9]+)\s*)+by\s([A-z0-9]+\s*)+/
+        var genreSearch = /genre:\s*[A-z0-9]+(\s[A-z0-9&]*)*/
+        if(trackSearch.test(searchQuery) == true)
+        {
+          console.log("track search")
+          trackSearchFunc(inputLimit);
+          return
+        } 
+        else if(genreSearch.test(searchQuery))
+        {
+          console.log("genre search")
+          genreSearchFunc(inputLimit);
+          return
         }
                 
         $.ajax({
@@ -287,12 +314,12 @@ $(document).ready(function(){
                   var w = 10
                   ctx.fillStyle = "#2E4F4F"
                   ctx.beginPath()
-                  ctx.arc(pt.x, pt.y, (node.data.weight)/4.0, 0, Math.PI*2, true)
+                  ctx.arc(pt.x, pt.y, Math.sqrt(10*node.data.weight), 0, Math.PI*2, true)
                   ctx.closePath()
                   ctx.fill()
                   ctx.fillStyle = "#000"
                   ctx.font = "14pt Calibri"
-                  ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + (node.data.weight)/4.0 + 20)
+                  ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 20)
                 })    			
               },
 
@@ -360,7 +387,7 @@ $(document).ready(function(){
 
                 $(canvas).mousedown(handler.clicked);
                 $(canvas).dblclick(handler.dblclick);
-              },
+              }
 
             }
             return that
@@ -376,18 +403,13 @@ $(document).ready(function(){
               sys.renderer = Renderer("#viewport")
             }
     
-            var json = jQuery.parseJSON(result)
-      
-            //console.log(json)
+            var json = jQuery.parseJSON(result)      
             var canvas = $("#viewport").get(0)
             var ctx = canvas.getContext("2d");
         
             for(var i = 0; i<json.nodes.length; i++)
             {
-              sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, 
-                                              weight: json.nodes[i].rating,
-                                              url: json.nodes[i].url})
-            
+              sys.addNode(json.nodes[i].name, {name:json.nodes[i].name, weight: json.nodes[i].rating, url: json.nodes[i].url})  
               if(i>0)
               {
                 sys.addEdge(json.nodes[0].name, json.nodes[i].name)
@@ -408,9 +430,28 @@ $(document).ready(function(){
     			{
     			  console.log(thrownError)
     		  }
+    		  
         });
+        
         return false;
       }
     })
-  
+    
+    function genreSearchFunc(inputLimit)
+    {
+      var genre = $("input#name").val().split(":")
+      var genre = genre[1].replace(" ", "")
+      var api = getApiKey()
+      
+      console.log(api)
+      
+      $.ajax({
+        url: getRequestUrl("tag.gettopartist") + "&tag="+genre+"&api_key="+api+"&limit="+inputLimit+"&format=json",
+        type: "GET",
+        success: function(response)
+        {
+          console.log(response)
+        }
+      })
+    }
 });
