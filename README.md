@@ -12,7 +12,7 @@ Node sizes are based on the percent match of the returned similar artists. If a 
 
 * Proper error handling
 * Advanced Search Options  
-    * Number of artists to return
+    * ~~Number of artists to return~~
     * Search for multiple artists
     * Color
 * Caching of results for faster request times  
