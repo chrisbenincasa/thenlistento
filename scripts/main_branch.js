@@ -60,7 +60,7 @@ $(document).ready(function(){
           var newWeight = nodes[i].match * 100
           sys.addNode(nodes[i].name, {name:nodes[i].name, weight: newWeight, url: nodes[i].url})
           
-          if(typeof nodes[i].artist.name == "string")
+          if(typeof nodes[i].artist != "undefined")
           {
             sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name
           }
@@ -345,8 +345,14 @@ $(document).ready(function(){
       for(var i = 0; i<nodes.length; i++)
       {
         var newWeight = (nodes[i].match*100)
+        var urlPattern = /http:\/\//
+        if(!urlPattern.test(nodes[i].url))
+        {
+          nodes[i].url = "http://"+nodes[i].url
+        }
+        
         sys.addNode(nodes[i].name, {name:nodes[i].name, weight:newWeight, url:nodes[i].url})
-        if(typeof nodes[i].artist.name == "string")
+        if(typeof nodes[i].artist != "undefined")
         {
           sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name
         }
@@ -354,10 +360,29 @@ $(document).ready(function(){
         {
           sys.addEdge(nodes[0].name, nodes[i].name)
         }
-        console.log(sys.getNode(nodes[i].name))
       }
 
       $("#container").fadeIn(1000, "easeInQuad")
     }
+  
+  /*$("#viewport").mousewheel(function(e,d){
+    var context = this.getContext("2d");
+    var scale = 1;
+    var originX = 0;
+    var originY = 0;
     
+    var mouseX = e.clientX - this.offsetLeft;
+    var mouseY = e.clientY - this.offsetTop;
+    
+    var zoom = d+1
+    
+    console.log(zoom)
+    
+    context.translate(originX, originY)
+    context.scale(zoom, zoom)
+    
+    //context.translate(this.width / 2, this.height /2);
+    
+  }) */
+   
 });
