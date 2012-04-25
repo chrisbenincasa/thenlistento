@@ -48,10 +48,20 @@ p
   margin: 0 auto;
 }
 
+#about h3, #help h3
+{
+  font-size: 18pt;
+}
+
 #error_inner h2
 {
   color: #000;
   margin-bottom: 10px;
+}
+
+#links_wrap
+{
+  margin: 10px 0 0 20px;
 }
 
 #container
@@ -64,7 +74,7 @@ p
 #header_container
 {
   margin: 0 auto;
-  padding: 20px 0 0;
+  /*padding: 20px 0 0;*/
   /*width: 800px;*/
   text-align: center;
   position: relative;
