@@ -113,7 +113,8 @@ $(document).ready(function(){
               ctx.fillStyle = "#000"
               ctx.font = "14pt Calibri"
               ctx.fillText(node.data.name, pt.x - Math.sqrt(node.data.name.length * 10), pt.y + (node.data.weight)/4.0 + 25)
-              ctx.fillText(node.data.artist, pt.x - Math.sqrt(node.data.artist.length * 10), pt.y - (node.data.weight)/4.0 - 10)
+              console.log(node.data.artist)
+              //ctx.fillText(node.data.artist, pt.x - Math.sqrt(node.data.artist.length * 10), pt.y - (node.data.weight)/4.0 - 10)
             })    			
           },
 
@@ -392,7 +393,6 @@ $(document).ready(function(){
             }
             return that
           }  
-            
             if(typeof sys === "object"){
               sys.eachNode(function(node, pt){
                 sys.pruneNode(node)
@@ -403,7 +403,8 @@ $(document).ready(function(){
               sys.renderer = Renderer("#viewport")
             }
     
-            var json = jQuery.parseJSON(result)      
+            var json = jQuery.parseJSON(result) 
+            console.log(json)     
             var canvas = $("#viewport").get(0)
             var ctx = canvas.getContext("2d");
         
