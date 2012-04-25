@@ -16,5 +16,7 @@ function getRequestUrl(method)
       return "http://ws.audioscrobbler.com/2.0/?method=tag.gettopartists"
     case "track.getsimilar":
       return "http://ws.audioscrobbler.com/2.0/?method=track.getsimilar"
+    case "artist.getsimilar":
+      return "http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar"
   }
 }
