@@ -14,7 +14,7 @@ Node sizes are based on the percent match of the returned similar artists. If a 
 
 As mentioned in the overview, ThenListenTo can understand a variety of different commands. Here is the current list of supported commands, as well as commands that are being implemented.
 
-#Supported Commands
+###Supported Commands
 
 Eventually, this section will be moved to the wiki.
 
@@ -33,7 +33,7 @@ Variable input is not case-sensitive.
   * tag: {tag name}
   * mood: {mood name}
   
-#Exmaples
+###Exmaples
 
 * Artist search
   * The Beatles
