@@ -30,17 +30,43 @@ $(document).ready(function(){
   {
     
   }
+
+  //Change placeholder every 3.5 seconds
+  /*setInterval(changePlaceholder, 3500)
+  var searchInput = $("input#name")
+  index = 1
+  function changePlaceholder()
+  {
+    if(!searchInput.is(":focus"))
+    {
+      console.log("not focused")
+      placeholders = ["The Beatles", "genre: rock", "15 Step by Radiohead"]
+      searchInput.attr("placeholder", placeholders[index])
+      if(index == placeholders.length)
+      {
+        index = 0
+      } else {
+        index++
+      }
+    }
+  }*/
   
+  /*Declare ParticleSystem so it's scope is retained after AJAX*/
+  var sys;
+    
   function newSearch(node, sys, mode)
   {
-    if (mode == "artist")
+    if (mode == "artist" || mode == "genre")
     {
       var artistName = node.data.name.replace(" ", "+")
       var newRequestURL = getRequestUrl("artist.getsimilar")+"&format=json&limit=10&artist="+artistName+"&api_key="+getApiKey()
-    } else {
+      mode = "artist"
+    } else if (mode == "track") {
       var artistName = node.data.artist.replace(" ", "+")
       var trackName = node.data.name.replace(" ", "+")
       var newRequestURL = getRequestUrl("track.getsimilar")+"&format=json&limit=10&artist="+artistName+"&track="+trackName+"&api_key="+getApiKey()
+    } else {
+      
     }
     
     $.ajax({
@@ -53,8 +79,7 @@ $(document).ready(function(){
           nodes = result.similarartists.artist
         } else {
           nodes = result.similartracks.track
-        }
-        
+        }        
         for(var i = 0; i < nodes.length; i++)
         {
           var newWeight = nodes[i].match * 100
@@ -65,10 +90,7 @@ $(document).ready(function(){
             sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name
           }
           
-          if(i>0)
-          {
-            sys.addEdge(node.name, nodes[i].name)
-          }
+          sys.addEdge(node.name, nodes[i].name)
         }
       },
       error: function(request, status, error)
@@ -77,36 +99,7 @@ $(document).ready(function(){
       }
     })
   }
-  
-  /*Declare ParticleSystem so it's scope is retained after AJAX*/
-  var sys;
-  
-  function trackSearchFunc(inputLimit){
-    var info = $("input#name").val().split(" by ")
-    for(var i = 0; i<info.length; i++)
-    {
-      info[i] = toTitleCase(info[i])
-    }
-    var api = getApiKey()
-    var track = info[0].replace(" ", "+")
-    var artist = info[1].replace(" ", "+")
-    var getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
-    
-    $.ajax({
-      type: "GET",
-      url: getUrl,
-      success: function(result){
-        var similarTracks = result.similartracks.track
-        var searchedArray = result["similartracks"]["@attr"]
-        var url = "http://last.fm/music/"+searchedArray["artist"].replace(" ", "+")+"/_/"+searchedArray["track"].replace(" ", "+")
-        similarTracks.unshift({"name":searchedArray["track"], "artist":{"name": searchedArray["artist"]}, "match": 1, "url" : url})
-        initializeGraph(result, similarTracks, "track")
-      },
-      error: function(xhr, status, code){
-        console.log(status)
-      }
-    }) 
-  }
+
   
   $("input").keypress(function(e){
     if(e.which == 13)
@@ -139,66 +132,148 @@ $(document).ready(function(){
       }
       
       var searchQuery = $("input#name").val();
-      
-      var trackSearch = /(([A-z0-9]+)\s*)+by\s([A-z0-9]+\s*)+/
-      var genreSearch = /genre:\s*[A-z0-9]+(\s[A-z0-9&]*)*/
-      if(trackSearch.test(searchQuery) == true)
+            
+      switch(searchType(searchQuery))
       {
-        console.log("track search")
-        trackSearchFunc(inputLimit);
-        return
-      } 
-      else if(genreSearch.test(searchQuery))
-      {
-        console.log("genre search")
-        genreSearchFunc(inputLimit);
-        return
+        case 0:
+          trackSearchFunc(inputLimit, false)
+          break
+        case 1:
+          trackSearchFunc(inputLimit, true)
+          break
+        case 2:
+          genreSearchFunc(inputLimit)
+          break
+        case 3:
+          artistSearchFunc(inputLimit) 
+          break
       }
-      
-      var artistVal = $("input#name").val().replace(" ", "+")
-      var api = getApiKey()
-      var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+artistVal+"&limit="+inputLimit+"&api_key="+api
-          
-      $.ajax({
-        url: requestURL,
-  			//url: 'parser_class.py',
-  			type: 'GET',
-  			//data: {artist: $("input#name").val(), limit: inputLimit},
-  			success: function(result)
-  			{
-  			  var artistArray = result.similarartists.artist
-  			  var searchedArtist = result["similarartists"]["@attr"]["artist"]
-  			  artistArray.unshift({"name": searchedArtist, "url": "http://www.last.fm/music/"+searchedArtist.replace(" ", "+"), "match": 1})
-          initializeGraph(result, artistArray, "artist");                    
-  	    },
-
-  			error: function(xhr, ajaxOptions, thrownError)
-  			{
-  			  console.log(thrownError)
-  		  }
-  		  
-      });
-      
       return false;
     }
   })
-    
+  
+  function searchType(query)
+  {
+    var expressions = {"trackSearch" : /(([A-z0-9]+)\s*)+\bby\b\s([A-z0-9]+\s*)+/,
+                       "trackOnlySearch": /\b(track|song)\b:\s*([A-z0-9]+\s*)+/,
+                       "genreSearch": /\b(genre|mood|tag)\b:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
+                       "whoHotBase": /(what[']*s)\s\b(hot|good|new|popular)\b/
+                      }
+                      
+    var length = 3, index = 0
+    for(var key in expressions)
+    {
+      if(expressions[key].test(query))
+      {
+        switch(key)
+        {
+          case "trackSearch":
+            return 0
+          case "trackOnlySearch":
+            return 1
+          case "genreSearch":
+            return 2
+        }
+      } 
+      else if(index == length)
+      {
+        return 3
+      }
+      index++
+    }
+  }
+  
+  function artistSearchFunc(inputLimit)
+  {
+    var artistVal = $("input#name").val().replace(" ", "+")
+    var api = getApiKey()
+    var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+artistVal+"&limit="+inputLimit+"&api_key="+api
+        
+    $.ajax({
+      url: requestURL,
+			type: 'GET',
+			success: function(result)
+			{
+			  if(typeof result.error != "undefined")
+			  {
+			    alert(result.message)
+			    //suggestions?
+			  } else {
+			    var artistArray = result.similarartists.artist
+  			  var searchedArtist = result["similarartists"]["@attr"]["artist"]
+  			  artistArray.unshift({"name": searchedArtist, "url": "http://www.last.fm/music/"+searchedArtist.replace(" ", "+"), "match": 1})
+          initializeGraph(result, artistArray, "artist");    
+        }                
+	    },
+
+			error: function(xhr, ajaxOptions, thrownError)
+			{
+			  console.log(thrownError)
+		  }
+		  
+    });
+  }
+  
   function genreSearchFunc(inputLimit)
   {
     var genre = $("input#name").val().split(":")
     var genre = genre[1].replace(" ", "")
     var api = getApiKey()
     
-    console.log(api)
-    
     $.ajax({
       url: getRequestUrl("tag.gettopartist") + "&tag="+genre+"&api_key="+api+"&limit="+inputLimit+"&format=json",
       type: "GET",
-      success: function(response)
+      success: function(result)
       {
-        console.log(response)
+        if(typeof result.error != "undefined")
+			  {
+			    alert(result.message)
+			    //suggestions?
+			  } else {
+        var topartists = result.topartists.artist
+        topartists.unshift({"name":toTitleCase(result["topartists"]["@attr"].tag), weight: 1, url: "http://www.google.com"})
+        initializeGraph(result, topartists, "genre")
+      }
       }
     })
+  }
+  
+  function trackSearchFunc(inputLimit, trackOnly){
+    if(!trackOnly)
+    {
+      var info = $("input#name").val().split(" by ")
+      for(var i = 0; i<info.length; i++)
+      {
+        info[i] = toTitleCase(info[i])
+      }
+      var api = getApiKey()
+      var track = info[0].replace(" ", "+")
+      var artist = info[1].replace(" ", "+")
+      var getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
+    
+      $.ajax({
+        type: "GET",
+        url: getUrl,
+        success: function(result){
+          if(typeof result.error != "undefined")
+  			  {
+  			    alert(result.message)
+  			    //suggestions?
+  			  } else {
+          var similarTracks = result.similartracks.track
+          var searchedArray = result["similartracks"]["@attr"]
+          var url = "http://last.fm/music/"+searchedArray["artist"].replace(" ", "+")+"/_/"+searchedArray["track"].replace(" ", "+")
+          similarTracks.unshift({"name":searchedArray["track"], "artist":{"name": searchedArray["artist"]}, "match": 1, "url" : url})
+          initializeGraph(result, similarTracks, "track")
+          }
+        },
+        error: function(xhr, status, code){
+          console.log(status)
+        }
+      })
+    } else {
+      alert("gonna implement!")
+    } 
   }
     
   function initializeGraph(result, nodes, mode)
@@ -233,10 +308,12 @@ $(document).ready(function(){
         {
           var w = 10
           ctx.fillStyle = "#2E4F4F"
+          ctx.strokeStyle = "#333"
           ctx.beginPath()
-          ctx.arc(pt.x, pt.y, Math.sqrt(10*node.data.weight), 0, Math.PI*2, true)
+          ctx.arc(pt.x, pt.y, 2.0*Math.sqrt(1.5*node.data.weight), 0, Math.PI*2, true)
           ctx.closePath()
           ctx.fill()
+          ctx.stroke()
           ctx.fillStyle = "#000"
           ctx.font = "14pt Calibri"
           ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 20)
@@ -268,7 +345,7 @@ $(document).ready(function(){
               // while we're dragging, don't let physics move the node
               dragged.node.fixed = true
             }
-            if (mode == "artist")
+            if (mode == "artist" || mode == "genre")
             {                    
               timeoutId = setTimeout(handler.searchArtist, 1000)
             } else {
@@ -338,13 +415,13 @@ $(document).ready(function(){
         sys.parameters({gravity:true, precision: 0.9, dt: 0.015})
         sys.renderer = Renderer("#viewport")
       }
-
+      
       var canvas = $("#viewport").get(0)
       var ctx = canvas.getContext("2d");
     
       for(var i = 0; i<nodes.length; i++)
       {
-        var newWeight = (nodes[i].match*100)
+        var newWeight = (mode != "genre") ? (nodes[i].match*100) : 75
         var urlPattern = /http:\/\//
         if(!urlPattern.test(nodes[i].url))
         {
@@ -356,6 +433,7 @@ $(document).ready(function(){
         {
           sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name
         }
+        
         if(i>0)
         {
           sys.addEdge(nodes[0].name, nodes[i].name)
