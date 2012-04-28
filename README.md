@@ -39,7 +39,7 @@ Variable input is not case-sensitive.
   * The Beatles
   * artist: Radiohead
 * Track search
-  * Getting Better
+  * Stairway to Heaven
   * 15 Step by Radiohead
 * Genre/Tag Search
   * genre: rock
