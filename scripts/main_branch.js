@@ -26,6 +26,15 @@ $(document).ready(function(){
     }
   });
   
+  $("#active_force_checkbox").click(function(e){
+    if($(this).is(":checked"))
+    {
+      $("#force_search_select").removeAttr("disabled")
+    } else {
+      $("#force_search_select").attr("disabled", true)
+    }
+  })
+  
   function validateForm()
   {
     
@@ -106,18 +115,25 @@ $(document).ready(function(){
     {        
       e.preventDefault() 
       $("container").fadeOut(100)
-              
+      
       //validate form
+      if(!$("input#name").val())
+      {
+        alert("you did something wrong")
+        this.focus()
+        return
+      } 
+      
       var intRegex = /^\d+$/;
       var inputLimit = $("input#limit").val()
       if(inputLimit.length > 0 && intRegex.test(inputLimit) == false)
       {
-        //that's not a number!
+        $(this).focus()
         return
       }
       else if (inputLimit > 20)
       {
-        //too big
+        $(this).focus()
         return
       } 
       else if (inputLimit == 0 || inputLimit.length == 0) {
@@ -131,22 +147,36 @@ $(document).ready(function(){
         $("#adv_search_opts").slideToggle()
       }
       
-      var searchQuery = $("input#name").val();
-            
-      switch(searchType(searchQuery))
+      //If limit search parameter is marked, then execute that search
+      if($("#active_force_checkbox").is(":checked"))
       {
-        case 0:
-          trackSearchFunc(inputLimit, false)
-          break
-        case 1:
-          trackSearchFunc(inputLimit, true)
-          break
-        case 2:
-          genreSearchFunc(inputLimit)
-          break
-        case 3:
-          artistSearchFunc(inputLimit) 
-          break
+        var cases = {"artist":artistSearchFunc, "track": trackSearchFunc, "genre": genreSearchFunc}
+        var force_val = $("#force_search_select").val()
+        if(forces_val == "track")
+        {
+          cases[force_val](inputLimit, true)
+        } else {
+          cases[force_val](inputLimit)
+        }
+        
+      } else {
+        var searchQuery = $("input#name").val();
+
+        switch(searchType(searchQuery))
+        {
+          case 0:
+            trackSearchFunc(inputLimit, false)
+            break
+          case 1:
+            trackSearchFunc(inputLimit, true)
+            break
+          case 2:
+            genreSearchFunc(inputLimit)
+            break
+          case 3:
+            artistSearchFunc(inputLimit) 
+            break
+        } 
       }
       return false;
     }
@@ -406,6 +436,7 @@ $(document).ready(function(){
     return that
   } 
 
+      //if sys is defined, prune exisiting nodes
       if (typeof sys === "object"){
         sys.eachNode(function(node, pt){
           sys.pruneNode(node)
