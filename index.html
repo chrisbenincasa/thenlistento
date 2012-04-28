@@ -27,7 +27,7 @@
 	       $("#black_overlay").fadeTo(100, 0.5);
 	     }, 300)
 	  }  
-	 }); 
+	 });
 	</script>
 </head>
 <body>
@@ -63,8 +63,17 @@
           <a id="advanced_search" href="#">Advanced Search</a>
           <div id="adv_search_opts">
             <div id="other_wrap">
-              <label for="limit">Limit: </label>
+              <label for="limit">Limit Results: </label>
               <input type="text" name="limit" id="limit" />
+              <fieldset>
+                <label for="force_search">Limit Search: </label>
+                <input name="active_force_search" id="active_force_checkbox" type="checkbox" />
+                <select disabled="1" name="force_search" id="force_search_select">
+                  <option value="artist">Artists</option>
+                  <option value="track">Tracks</option>
+                  <option value="genre">Genres</option>
+                </select>
+              </fieldset>
             </div>
           </div>
         </div>
