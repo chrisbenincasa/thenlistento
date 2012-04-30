@@ -25,3 +25,9 @@ function showError()
 {
   $(".search_error").fadeIn("fast")
 }
+
+function stripTags(string, tag) 
+{
+  var tagMatcher = new RegExp('</?' + tag + '>','g');
+  return string.replace(tagMatcher, '');
+}
