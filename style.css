@@ -5,6 +5,13 @@ body
   height: 100%;
 }
 
+h4
+{
+  font-size: 12pt;
+  font-weight: 100;
+  margin-bottom: 2px;
+}
+
 a
 {
   color: #000;
@@ -42,7 +49,7 @@ select
   -webkit-box-shadow: inset 0px -5px 10px 0px #555;
   -moz-box-shadow: inset 0px -5px 10px 0px #555;
   box-shadow: inset 0px -5px 10px 0px #555;
-  padding: 10px 0 20px;
+  padding: 10px 0 10px;
   position: relative;
   z-index: 100;
 }
@@ -56,6 +63,54 @@ select
 #about h3, #help h3
 {
   font-size: 18pt;
+  margin-bottom: 10px;
+}
+
+#about p, .help_content p, .help_content ul
+{
+  margin-bottom: 10px;
+}
+
+.help_tabs
+{
+  margin-bottom: 5px;
+}
+
+.help_tabs li
+{
+  display: inline;
+  list-style: none;
+  margin-right: 10px;
+}
+
+.help_tabs li.active a
+{
+  color: teal;
+}
+
+.help_content
+{
+  height: 225px;
+}
+
+.help_content ul
+{
+  margin-left: 10px;
+}
+
+.help_content ul li
+{
+  list-style: none;
+}
+
+.help_content a
+{
+  text-decoration: none;
+}
+
+.tracks_help_content, .genres_help_content, .more_help_content
+{
+  display: none;
 }
 
 #error_inner h2
@@ -67,6 +122,11 @@ select
 #links_wrap
 {
   padding: 10px 0 0 20px;
+}
+
+#links_wrap a
+{
+  margin-right: 5px;
 }
 
 .canvas_container
