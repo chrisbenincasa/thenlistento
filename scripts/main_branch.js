@@ -35,6 +35,27 @@ $(document).ready(function(){
     }
   })
   
+  $("#tell_me_search").click(function(e){
+    var r = $("#band_search")
+    var t = $("#tell_me_form")
+    if(r.is(":visible"))
+    {
+      r.fadeToggle("fast", "linear", function(e){
+        t.fadeToggle("fast")
+      })
+    } else {
+      t.fadeToggle("fast", "linear", function(e){
+        r.fadeToggle("fast")
+      })
+    }
+    if(typeof sys === "object")
+    {
+      sys.eachNode(function(node, pt){
+        sys.pruneNode(node.data.name)
+      })
+    }
+  })
+  
   function validateForm()
   {
     
@@ -110,7 +131,7 @@ $(document).ready(function(){
   }
 
   
-  $("input").keypress(function(e){
+  $("#band_search input").keypress(function(e){
     if(e.which == 13)
     {        
       e.preventDefault() 
@@ -224,10 +245,10 @@ $(document).ready(function(){
 			type: 'GET',
 			success: function(result)
 			{
-			  if(typeof result.error != "undefined")
+			  if(typeof result.error != "undefined" || typeof result.similarartists.artist != "object")
 			  {
-			    alert(result.message)
-			    //suggestions?
+			    showError()
+			    $("input#name").focus()
 			  } else {
 			    var artistArray = result.similarartists.artist
   			  var searchedArtist = result["similarartists"]["@attr"]["artist"]
@@ -257,8 +278,7 @@ $(document).ready(function(){
       {
         if(typeof result.error != "undefined")
 			  {
-			    alert(result.message)
-			    //suggestions?
+			    showError()
 			  } else {
         var topartists = result.topartists.artist
         topartists.unshift({"name":toTitleCase(result["topartists"]["@attr"].tag), weight: 1, url: "http://www.google.com"})
@@ -287,8 +307,7 @@ $(document).ready(function(){
         success: function(result){
           if(typeof result.error != "undefined")
   			  {
-  			    alert(result.message)
-  			    //suggestions?
+  			    showError()
   			  } else {
           var similarTracks = result.similartracks.track
           var searchedArray = result["similartracks"]["@attr"]
@@ -471,27 +490,15 @@ $(document).ready(function(){
         }
       }
 
-      $("#container").fadeIn(1000, "easeInQuad")
+      $("#recommend_canvas_container").fadeIn(1000, "easeInQuad")
     }
   
-  /*$("#viewport").mousewheel(function(e,d){
-    var context = this.getContext("2d");
-    var scale = 1;
-    var originX = 0;
-    var originY = 0;
-    
-    var mouseX = e.clientX - this.offsetLeft;
-    var mouseY = e.clientY - this.offsetTop;
-    
-    var zoom = d+1
-    
-    console.log(zoom)
-    
-    context.translate(originX, originY)
-    context.scale(zoom, zoom)
-    
-    //context.translate(this.width / 2, this.height /2);
-    
-  }) */
+  $("#tell_me_search input").keypress(function(e){
+    if(e.which == 13)
+    {
+      e.preventDefault()
+      alert("HI!")
+    }
+  })
    
 });
