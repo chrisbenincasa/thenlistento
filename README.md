@@ -48,11 +48,11 @@ Variable input is not case-sensitive.
 
 ##Features to be Added
 
-* Proper error handling
+* ~~Proper error handling~~
 * Advanced Search Options  
     * ~~Number of artists to return~~
     * Search for multiple artists
     * Color
 * Caching of results for faster request times  
 * Artist image in nodes  
-* Prettier interface  
+* ~~Prettier interface~~ 
