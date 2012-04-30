@@ -20,3 +20,8 @@ function getRequestUrl(method)
       return "http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar"
   }
 }
+
+function showError()
+{
+  $(".search_error").fadeIn("fast")
+}
