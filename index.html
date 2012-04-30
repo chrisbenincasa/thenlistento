@@ -51,10 +51,11 @@
   <div id="links_wrap">
     <a href="#" id="about_link">About</a>
     <a href="#" id="help_link">Help</a>
+    <a href="#" id="tell_me_search">Search Type</a>
   </div>
   <div id="main_container">
     <div id="black_overlay"></div>
-    <div id="header_container">
+    <div class="header_container">
       <form id="band_search">
         <h2>You like</h2>
         <input id="name" type="text" placeholder="The Beatles"/>
@@ -78,9 +79,19 @@
           </div>
         </div>
       </form>
-      <small>Press 'enter' to search.</small>
+      <form id="tell_me_form">
+        <h2>Tell me</h2>
+        <input id="tell_name" type="text" placeholder="what's hot" />
+        <h2>&hellip;</h2>
+      </form>
+      <p>
+        <small>Press 'enter' to search.</small>
+      </p>
     </div>
-    <div id="container">
+    <div class="search_error">
+      <h3>Something went wrong with the search. Try again.</h3>
+    </div>
+    <div class="canvas_container" id="recommend_canvas_container">
       <canvas id="viewport" height="540" width="960"></canvas>
       <!-- <a href="#" id="image">for image</a> -->
     </div>
