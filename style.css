@@ -20,6 +20,11 @@ p
   margin-bottom: 10px;
 }
 
+select 
+{
+  vertical-align: bottom;
+}
+
 #nav_wrap
 {
   float: right;
@@ -61,7 +66,7 @@ p
 
 #links_wrap
 {
-  margin: 10px 0 0 20px;
+  padding: 10px 0 0 20px;
 }
 
 .canvas_container
