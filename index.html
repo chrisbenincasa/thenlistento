@@ -37,20 +37,66 @@
     </div>
   </div>
   <div id="about">
+  <a class="about_link" href="#" style="float: right; padding-right: 10px">Close</a>
    <div id="about_inner">
       <h3>Welcome to ThenListenTo<sup style="color: teal;">beta</sup></h3>
+      <p>Finding new music can be a drag. ThenListenTo is here to help.</p>
+      <p>Enter an artist or song name, genre, or mood into the box and hit enter and ThenListenTo will generate a pretty graph of results. The bigger the circle, the better the match!</p>
+      <p>Click and hold a circle for a second to expand the graph with even more results; it's that simple!</p>
+      <p>But there's more! Check out the <a href="#" class="help_link">help section</a> for a full list of commands!</p>
     </div>
   </div>
   <div id="help">
+  <a class="help_link" href="#" style="float: right; padding-right: 10px;">Close</a>
     <div id="help_inner">
-      <h3>Need some help with queries?</h3>
-      <h3>Searching Artists</h3>
-      <h3>Searching Genres</h3>
+      <h3>Need some help with searches?</h3>
+      <ul class="help_tabs">
+        <li class="help_tab active"><a class="artists_help_link" href="#">Artists</a></li>
+        <li class="help_tab"><a class="tracks_help_link" href="#">Tracks</a></li>
+        <li class="help_tab"><a class="genres_help_link" href="#">Genres</a></li>
+        <li class="help_tab"><a class="more_help_link" href="#">Additional Features</a></li>
+      </ul>
+      <div class="help_content">
+        <div class="artists_help_content active">
+          <p>Artist search is at the center of ThenListenTo. This means that a simple search without any additional parameters will be interpreted as an artist search before any other options are explored by the system</p>
+          <p>So to search for an artist, simply type the artist's and hit enter. </p>
+          <h4>Click an example to try it out!</h4>
+          <ul>
+            <li><a href="#"><strong>Radiohead</strong></a></li>
+            <li><a href="#"><strong>Led Zeppelin</strong></a></li>
+            <li><a href="#"><strong>Miles Davis</strong></a></li>
+          </ul>
+        </div>
+        <div class="tracks_help_content">
+          <p>You can even get track recommendations! Search for a track by entering "<strong><u>{track name}</u></strong> by <strong><u>{artist name}</u></strong>", without quotes. ThenListenTo will know you want a track and not an artist or genre. You can also flag your search with "track: " or "song: " if you don't remember the artist's name!</p>
+          <h4>Click an example to try it out!</h4>
+            <ul>
+              <li><a href="#"><strong>15 Step</strong> by <strong>Radiohead</strong></a></li>
+              <li><a href="#"><strong>track: Stairway to Heaven</strong></a></li>
+              <li><a href="#"><strong>song: I Want To Hold Your Hand</strong></a></li>
+            </ul>
+          <p>ThenListenTo will always assume a search is an artist name first. To force a track name search, flag it or utilize the advanced search options.</p>
+        </div>
+        <div class="genres_help_content">
+          <p>Searching artists and tracks is specific. If you wish to get generalized recommendations on a genre, mood, or tag, you're in luck! ThenListenTo provides means to recommend artists based on these characteristics. In order to do so, first flag your search with "genre: ", "mood: ", or "tag: ".</p>
+          <h4>Click an example to try it out!</h4>
+          <ul>
+            <li><a href="#"><strong>genre: </strong>rock</a></li>
+            <li><a href="#"><strong>mood: </strong>happy</a></li>
+            <li><a href="#"><strong>tag: </strong>loud</a></li>
+          </ul>
+          <p>Don't forget the colon after your chosen flag!</p>
+        </div>
+        <div class="more_help_content">
+          <p>ThenListenTo makes it easy to expand your graphs. If you see an artist in a graph that you want recommendations for, simply click and hold that artist's circle for a second. A new search is appended to your existing graph with 10 new recommendations!</p>
+          <p>Advanced search functions add even more functionality by letting you limit the amount of results for a search, as well force different kinds of searches. Forcing a search type is useful if ThenListenTo is having trouble understanding your query.</p>
+        </div>
+      </div>
     </div>
   </div>
   <div id="links_wrap">
-    <a href="#" id="about_link">About</a>
-    <a href="#" id="help_link">Help</a>
+    <a href="#" class="about_link">About</a>
+    <a href="#" class="help_link">Help</a>
     <!-- <a href="#" id="tell_me_search">Search Type</a> -->
   </div>
   <div id="main_container">
