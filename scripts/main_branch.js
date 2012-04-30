@@ -109,11 +109,12 @@ $(document).ready(function(){
           nodes = result.similarartists.artist
         } else {
           nodes = result.similartracks.track
-        }        
+        }
         for(var i = 0; i < nodes.length; i++)
         {
+          var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
           var newWeight = nodes[i].match * 100
-          sys.addNode(nodes[i].name, {name:nodes[i].name, weight: newWeight, url: nodes[i].url})
+          sys.addNode(nodes[i].name, {name:nodes[i].name, weight: newWeight, url: nodes[i].url, color: randomColor})
           
           if(typeof nodes[i].artist != "undefined")
           {
@@ -345,8 +346,8 @@ $(document).ready(function(){
         ctx.fillRect(0,0, canvas.width, canvas.height)
 
         particleSystem.eachEdge(function(edge, pt1, pt2){
-          ctx.strokeStyle = "rgba(0,0,0, .333)"
-          ctx.lineWidth = 1
+          ctx.strokeStyle = "#ccc"
+          ctx.lineWidth = 1.5
           ctx.beginPath()
           ctx.moveTo(pt1.x, pt1.y)
           ctx.lineTo(pt2.x, pt2.y)
@@ -355,17 +356,20 @@ $(document).ready(function(){
 
         particleSystem.eachNode(function(node, pt)
         {
-          var w = 10
-          ctx.fillStyle = "#2E4F4F"
+          ctx.fillStyle = (typeof node.data.color != "undefined") ? node.data.color : "#2E4F4F"
           ctx.strokeStyle = "#333"
           ctx.beginPath()
           ctx.arc(pt.x, pt.y, 2.0*Math.sqrt(1.5*node.data.weight), 0, Math.PI*2, true)
           ctx.closePath()
           ctx.fill()
           ctx.stroke()
+        })
+        
+        particleSystem.eachNode(function(node, pt){
+          //text always above nodes
           ctx.fillStyle = "#000"
-          ctx.font = "14pt Calibri"
-          ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 20)
+          ctx.font = "13pt Calibri"
+          ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.0), pt.y + Math.sqrt(10*node.data.weight) + 15)
           if (typeof node.data.artist == "string")
           {
             ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 40)
@@ -468,9 +472,10 @@ $(document).ready(function(){
       
       var canvas = $("#viewport").get(0)
       var ctx = canvas.getContext("2d");
-    
+      
       for(var i = 0; i<nodes.length; i++)
       {
+        var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
         var newWeight = (mode != "genre") ? (nodes[i].match*100) : 75
         var urlPattern = /http:\/\//
         if(!urlPattern.test(nodes[i].url))
@@ -478,7 +483,7 @@ $(document).ready(function(){
           nodes[i].url = "http://"+nodes[i].url
         }
         
-        sys.addNode(nodes[i].name, {name:nodes[i].name, weight:newWeight, url:nodes[i].url})
+        sys.addNode(nodes[i].name, {name:nodes[i].name, weight:newWeight, url:nodes[i].url, color: randomColor})
         if(typeof nodes[i].artist != "undefined")
         {
           sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name
