@@ -3,7 +3,7 @@ $(document).ready(function(){
     $("#adv_search_opts").slideToggle(400, "easeOutCubic")
   })
   
-  $("#about_link").click(function(e){
+  $(".about_link").click(function(e){
     //$("#black_overlay").fadeIn();
     if($("#help").is(":visible"))
     {
@@ -15,7 +15,7 @@ $(document).ready(function(){
     }
   });
   
-  $("#help_link").click(function(e){
+  $(".help_link").click(function(e){
     if($("#about").is(":visible"))
     {
       $("#about").slideUp(400, "easeOutCubic", function(){
@@ -54,6 +54,48 @@ $(document).ready(function(){
         sys.pruneNode(node.data.name)
       })
     }
+  })
+  
+  $(".help_tabs li a").click(function(e){
+    var tabs = ["artists_help_link", "tracks_help_link", "genres_help_link"]
+    var link = $(this)
+    if(link.parent().hasClass("active"))
+    {
+      return
+    } else {
+      link.parent().siblings(".active").removeClass("active")
+      link.parent().addClass("active")
+      $(".help_content").children(".active").hide(0, function(){
+        $(this).removeClass("active")
+        if(link.hasClass(tabs[0]))
+        {
+          $(".artists_help_content").show(0, function(){
+            $(this).addClass("active")
+          })
+        }
+        else if(link.hasClass(tabs[1]))
+        {
+          $(".tracks_help_content").show(0, function(){
+            $(this).addClass("active")
+          })
+        } else if(link.hasClass(tabs[2])) {
+          $(".genres_help_content").show(0, function(){
+            $(this).addClass("active")
+          })
+        } else {
+          $(".more_help_content").show(0, function(){
+            $(this).addClass("active")
+          })
+        }
+      })
+    }  
+  })
+  
+  $(".help_content a").click(function(e){
+    e.preventDefault()
+    $("input#name").val(stripTags($(this).html(), "strong"))
+    $("#help").slideToggle(400, "easeOutCubic")
+    $("#band_search").submit()
   })
   
   function validateForm()
@@ -137,70 +179,77 @@ $(document).ready(function(){
     {        
       e.preventDefault() 
       $("container").fadeOut(100)
+      $(this).submit()
       
-      //validate form
-      if(!$("input#name").val())
-      {
-        alert("you did something wrong")
-        this.focus()
-        return
-      } 
-      
-      var intRegex = /^\d+$/;
-      var inputLimit = $("input#limit").val()
-      if(inputLimit.length > 0 && intRegex.test(inputLimit) == false)
-      {
-        $(this).focus()
-        return
-      }
-      else if (inputLimit > 20)
-      {
-        $(this).focus()
-        return
-      } 
-      else if (inputLimit == 0 || inputLimit.length == 0) {
-        //limit defaults to 10 if nothing is entered
-        inputLimit = 10;
-      }
-      
-      //hide advanced search options if visible upon search
-      if($("#adv_search_opts").is(":visible"))
-      {
-        $("#adv_search_opts").slideToggle()
-      }
-      
-      //If limit search parameter is marked, then execute that search
-      if($("#active_force_checkbox").is(":checked"))
-      {
-        var cases = {"artist":artistSearchFunc, "track": trackSearchFunc, "genre": genreSearchFunc}
-        var force_val = $("#force_search_select").val()
-        if(forces_val == "track")
-        {
-          cases[force_val](inputLimit, true)
-        } else {
-          cases[force_val](inputLimit)
-        }
-        
-      } else {
-        var searchQuery = $("input#name").val();
-
-        switch(searchType(searchQuery))
-        {
-          case 0:
-            trackSearchFunc(inputLimit, false)
-            break
-          case 1:
-            trackSearchFunc(inputLimit, true)
-            break
-          case 2:
-            genreSearchFunc(inputLimit)
-            break
-          case 3:
-            artistSearchFunc(inputLimit) 
-            break
-        } 
-      }
       return false;
+    }
+  })
+  
+  $("#band_search").submit(function(e){
+    //validate form
+    if(!$("input#name").val())
+    {
+      alert("you did something wrong")
+      this.focus()
+      return
+    } 
+    
+    var intRegex = /^\d+$/;
+    var inputLimit = $("input#limit").val()
+    if(inputLimit.length > 0 && intRegex.test(inputLimit) == false)
+    {
+      $(this).focus()
+      return
+    }
+    else if (inputLimit > 20)
+    {
+      $(this).focus()
+      return
+    } 
+    else if (inputLimit == 0 || inputLimit.length == 0) {
+      //limit defaults to 10 if nothing is entered
+      inputLimit = 10;
+    }
+    
+    //hide advanced search options if visible upon search
+    if($("#adv_search_opts").is(":visible"))
+    {
+      $("#adv_search_opts").slideToggle()
+    }
+    
+    //If limit search parameter is marked, then execute that search
+    if($("#active_force_checkbox").is(":checked"))
+    {
+      var cases = {"artist":artistSearchFunc, "track": trackSearchFunc, "genre": genreSearchFunc}
+      var force_val = $("#force_search_select").val()
+      if(forces_val == "track")
+      {
+        cases[force_val](inputLimit, true)
+      } else {
+        cases[force_val](inputLimit)
+      }
+      
+    } else {
+      var searchQuery = $("input#name").val();
+
+      switch(searchType(searchQuery))
+      {
+        case 0:
+          trackSearchFunc(inputLimit, false)
+          break
+        case 1:
+          trackSearchFunc(inputLimit, true)
+          break
+        case 2:
+          genreSearchFunc(inputLimit)
+          break
+        case 3:
+          artistSearchFunc(inputLimit) 
+          break
+        case 4:
+          artistSearchFunc(inputLimit)
+          break
+      } 
     }
   })
   
@@ -209,10 +258,11 @@ $(document).ready(function(){
     var expressions = {"trackSearch" : /(([A-z0-9]+)\s*)+\bby\b\s([A-z0-9]+\s*)+/,
                        "trackOnlySearch": /\b(track|song)\b:\s*([A-z0-9]+\s*)+/,
                        "genreSearch": /\b(genre|mood|tag)\b:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
+                       "artistSearch": /\b(artist|band)\b:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
                        "whoHotBase": /(what[']*s)\s\b(hot|good|new|popular)\b/
                       }
                       
-    var length = 3, index = 0
+    var length = 4, index = 0
     for(var key in expressions)
     {
       if(expressions[key].test(query))
@@ -225,6 +275,8 @@ $(document).ready(function(){
             return 1
           case "genreSearch":
             return 2
+          case "artistSearch":
+            return 4
         }
       } 
       else if(index == length)
@@ -237,7 +289,13 @@ $(document).ready(function(){
   
   function artistSearchFunc(inputLimit)
   {
-    var artistVal = $("input#name").val().replace(" ", "+")
+    var flags = $("input#name").val().split(":")
+    if(flags.length > 1)
+    {
+      var artistVal = flags[1].replace(" ", "+")
+    } else {
+      var artistVal = flags[0].replace(" ", "+")
+    }
     var api = getApiKey()
     var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+artistVal+"&limit="+inputLimit+"&api_key="+api
         
@@ -248,6 +306,7 @@ $(document).ready(function(){
 			{
 			  if(typeof result.error != "undefined" || typeof result.similarartists.artist != "object")
 			  {
+			    console.log(result)
 			    showError()
 			    $("input#name").focus()
 			  } else {
@@ -372,7 +431,7 @@ $(document).ready(function(){
           ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.0), pt.y + Math.sqrt(10*node.data.weight) + 15)
           if (typeof node.data.artist == "string")
           {
-            ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 40)
+            ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 30)
           }
         })    			
       },
