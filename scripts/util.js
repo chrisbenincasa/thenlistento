@@ -18,6 +18,8 @@ function getRequestUrl(method)
       return "http://ws.audioscrobbler.com/2.0/?method=track.getsimilar"
     case "artist.getsimilar":
       return "http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar"
+    case "track.search":
+      return "http://ws.audioscrobbler.com/2.0/?method=track.search"
   }
 }
 
