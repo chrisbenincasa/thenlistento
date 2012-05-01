@@ -185,6 +185,7 @@ $(document).ready(function(){
 
   
   $("#band_search input").keypress(function(e){
+    $(".limit_error").hide()
     if(e.which == 13)
     {
       e.preventDefault() 
@@ -198,7 +199,6 @@ $(document).ready(function(){
     //validate form
     if(!$("input#name").val())
     {
-      alert("you did something wrong")
       this.focus()
       return
     } 
@@ -207,11 +207,13 @@ $(document).ready(function(){
     var inputLimit = $("input#limit").val()
     if(inputLimit.length > 0 && intRegex.test(inputLimit) == false)
     {
+      $(".limit_error").html("Enter a number!").show();
       $(this).focus()
       return
     }
     else if (inputLimit > 20)
     {
+      $(".limit_error").html("Enter a number less than 20!").show()
       $(this).focus()
       return
     } 
