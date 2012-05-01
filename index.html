@@ -6,6 +6,8 @@
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 	<title>ThenListenTo</title>
+	<meta name="description" content="ThenListenTo generates music recommendation graphs based on artists, songs, genres, and moods. Discover new artists and bands based on what you like.">
+	<meta name="keywords" content="music, recommendation, recommend, graph, visual, html5, artists, bands, songs, tracks, preferences, lastfm, new, taste, related, similar, suggest, suggestions, discover">
 	<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'/>
   <link rel="stylesheet" href="./reset.css" type="text/css" media="screen"/>
   <link rel="stylesheet" href="./style.css" type="text/css" media="screen"/>
@@ -105,7 +107,7 @@
     <div class="header_container">
       <form id="band_search">
         <h2>You like</h2>
-        <input id="name" type="text" placeholder="The Beatles"/>
+        <input name="name" id="name" type="text" placeholder="The Beatles"/>
         <h2>? Then listen to&hellip;</h2>
         <div id="adv_search_wrap">
           <a id="advanced_search" href="#">Advanced Search</a>
@@ -141,6 +143,7 @@
     </div>
     <div class="canvas_container" id="recommend_canvas_container">
       <canvas id="viewport" height="700" width="960"></canvas>
+      <div id="hidden_results"></div>
       <!-- <a href="#" id="image">for image</a> -->
     </div>
     <div class="footer_wrap">

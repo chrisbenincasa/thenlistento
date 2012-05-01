@@ -260,6 +260,13 @@ input:focus
   font-size: 11pt;
 }
 
+#hidden_results
+{
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* Tell Me Styles */
 
 #tell_me_form

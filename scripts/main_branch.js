@@ -1,4 +1,21 @@
 $(document).ready(function(){
+  if(window.location.hash.length > 0)
+  {
+    var hash = window.location.hash
+    hash = hash.split("/")
+    query = hash[1].split("&")
+    if(query.length == 2)
+    {
+      var param = query[1].split("=")
+      if(param[0] == "limit")
+      {
+        $("input#limit").val(param[1])
+      }
+    }
+    var urlSearch = query[0].replace("+", " ")
+    $("input#name").val(urlSearch)
+    search()
+  }
   /*$(".canvas_container").width($(window).width() - 300)
   $("#viewport").attr("width", $(window).width() - 300)
   $("#viewport").attr("height", $(window).height() - 200)
@@ -221,6 +238,10 @@ $(document).ready(function(){
       //limit defaults to 10 if nothing is entered
       inputLimit = 10;
     }
+    
+    var serial = $("input#name").val().replace(" ", "+")
+    var limitHash = $("input#limit").val()
+    window.location.hash = (limitHash.length > 0) ? "!/"+serial+"&limit="+limitHash : "!/"+serial
     
     //hide advanced search options if visible upon search
     if($("#adv_search_opts").is(":visible"))
@@ -568,6 +589,7 @@ $(document).ready(function(){
       var canvas = $("#viewport").get(0)
       var ctx = canvas.getContext("2d");
       
+      $("#hidden_results").html("");
       for(var i = 0; i<nodes.length; i++)
       {
         var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
@@ -588,6 +610,10 @@ $(document).ready(function(){
         {
           sys.addEdge(nodes[0].name, nodes[i].name)
         }
+        
+        //append to hidden_results
+        $("#hidden_results").append('<div class="'+nodes[i].name+'">'+nodes[i].name+'</div>');
+        
       }
 
       $("#viewport").fadeIn(1000, "easeInQuad")
