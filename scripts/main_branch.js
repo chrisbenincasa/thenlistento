@@ -1,43 +1,35 @@
 $(document).ready(function(){
   if(window.location.hash.length > 0)
   {
-    var hash = window.location.hash
-    hash = hash.split("/")
-    query = hash[1].split("&")
-    if(query.length == 2)
+    var hash = window.location.hash;
+    hash = hash.split("/");
+    var query = hash[1].split("&");
+    if(query.length === 2)
     {
-      var param = query[1].split("=")
-      if(param[0] == "limit")
+      var param = query[1].split("=");
+      if(param[0] === "limit")
       {
-        $("input#limit").val(param[1])
+        $("input#limit").val(param[1]);
       }
     }
-    var urlSearch = query[0].replace("+", " ")
-    $("input#name").val(urlSearch)
-    search()
+    var urlSearch = query[0].replace("+", " ");
+    $("input#name").val(urlSearch);
+    search();
   }
-  /*$(".canvas_container").width($(window).width() - 300)
-  $("#viewport").attr("width", $(window).width() - 300)
-  $("#viewport").attr("height", $(window).height() - 200)
-  
-  $(window).resize(function(){
-    $("#viewport").attr("width", $(this).width() - 200)
-    $("#viewport").attr("height", $(this).height() - 200)
-  })*/
-  
+
   $("#advanced_search").click(function(){
-    $("#adv_search_opts").slideToggle(400, "easeOutCubic")
-  })
+    $("#adv_search_opts").slideToggle(400, "easeOutCubic");
+  });
   
   $(".about_link").click(function(e){
     //$("#black_overlay").fadeIn();
     if($("#help").is(":visible"))
     {
       $("#help").slideUp(400, "easeOutCubic", function(){
-        $("#about").slideToggle(400, "easeOutCubic")
-      })
+        $("#about").slideToggle(400, "easeOutCubic");
+      });
     } else{
-      $("#about").slideToggle(400, "easeOutCubic")
+      $("#about").slideToggle(400, "easeOutCubic");
     }
   });
   
@@ -45,84 +37,88 @@ $(document).ready(function(){
     if($("#about").is(":visible"))
     {
       $("#about").slideUp(400, "easeOutCubic", function(){
-        $("#help").slideToggle(400, "easeOutCubic")
-      })
+        $("#help").slideToggle(400, "easeOutCubic");
+      });
     } else{
-      $("#help").slideToggle(400, "easeOutCubic")
+      $("#help").slideToggle(400, "easeOutCubic");
     }
   });
   
   $("#active_force_checkbox").click(function(e){
     if($(this).is(":checked"))
     {
-      $("#force_search_select").removeAttr("disabled")
+      $("#force_search_select").removeAttr("disabled");
     } else {
-      $("#force_search_select").attr("disabled", true)
+      $("#force_search_select").attr("disabled", true);
     }
-  })
+  });
   
-  $("#tell_me_search").click(function(e){
-    var r = $("#band_search")
-    var t = $("#tell_me_form")
+  $("#links_right a").click(function(e){
+    switchSearch(e);
+  });
+  
+  /*$("#tell_me_search").click(function(e){
+    var r = $("#band_search");
+    var t = $("#tell_me_form");
     if(r.is(":visible"))
     {
       r.fadeToggle("fast", "linear", function(e){
-        t.fadeToggle("fast")
-      })
+        t.fadeToggle("fast");
+      });
     } else {
       t.fadeToggle("fast", "linear", function(e){
-        r.fadeToggle("fast")
-      })
+        r.fadeToggle("fast");
+      });
     }
     if(typeof sys === "object")
     {
       sys.eachNode(function(node, pt){
-        sys.pruneNode(node.data.name)
-      })
+        sys.pruneNode(node.data.name);
+      });
     }
-  })
+  });*/
   
   $(".help_tabs li a").click(function(e){
-    var tabs = ["artists_help_link", "tracks_help_link", "genres_help_link"]
-    var link = $(this)
+    var tabs = ["artists_help_link", "tracks_help_link", "genres_help_link"];
+    var link = $(this);
     if(link.parent().hasClass("active"))
     {
-      return
+      return;
     } else {
-      link.parent().siblings(".active").removeClass("active")
-      link.parent().addClass("active")
+      link.parent().siblings(".active").removeClass("active");
+      link.parent().addClass("active");
       $(".help_content").children(".active").hide(0, function(){
-        $(this).removeClass("active")
+        $(this).removeClass("active");
         if(link.hasClass(tabs[0]))
         {
           $(".artists_help_content").show(0, function(){
-            $(this).addClass("active")
-          })
+            $(this).addClass("active");
+          });
         }
         else if(link.hasClass(tabs[1]))
         {
           $(".tracks_help_content").show(0, function(){
-            $(this).addClass("active")
-          })
+            $(this).addClass("active");
+          });
         } else if(link.hasClass(tabs[2])) {
           $(".genres_help_content").show(0, function(){
-            $(this).addClass("active")
-          })
+            $(this).addClass("active");
+          });
         } else {
           $(".more_help_content").show(0, function(){
-            $(this).addClass("active")
-          })
+            $(this).addClass("active");
+          });
         }
-      })
+      });
     }  
-  })
+  });
   
   $(".help_content a.example").click(function(e){
-    e.preventDefault()
-    $("input#name").val(stripTags($(this).html(), "strong"))
-    $("#help").slideToggle(400, "easeOutCubic")
-    search()
-  })
+    e.preventDefault();
+    $("input#name").val(stripTags($(this).html(), "strong"));
+    $("#help").slideToggle(400, "easeOutCubic");
+    search();
+  });
   
   function validateForm()
   {
@@ -130,20 +126,20 @@ $(document).ready(function(){
   }
 
   //Change placeholder every 3.5 seconds
-  setInterval(changePlaceholder, 3500)
-  var searchInput = $("input#name")
-  index = 1
+  setInterval(changePlaceholder, 3500);
+  var searchInput = $("input#name");
+  index = 1;
   function changePlaceholder()
   {
     if(!searchInput.is(":focus"))
     {
-      placeholders = ["The Beatles", "genre: rock", "15 Step by Radiohead"]
-      searchInput.attr("placeholder", placeholders[index])
-      if(index == placeholders.length)
+      placeholders = ["The Beatles", "genre: rock", "15 Step by Radiohead"];
+      searchInput.attr("placeholder", placeholders[index]);
+      if(index === placeholders.length)
       {
-        index = 0
+        index = 0;
       } else {
-        index++
+        index++;
       }
     }
   }
@@ -153,15 +149,16 @@ $(document).ready(function(){
     
   function newSearch(node, sys, mode)
   {
+    
     if (mode == "artist" || mode == "genre")
     {
-      var artistName = node.data.name.replace(" ", "+")
-      var newRequestURL = getRequestUrl("artist.getsimilar")+"&format=json&limit=10&artist="+artistName+"&api_key="+getApiKey()
-      mode = "artist"
+      var artistName = node.data.name.replace(" ", "+");
+      var newRequestURL = getRequestUrl("artist.getsimilar")+"&format=json&limit=10&artist="+artistName+"&api_key="+getApiKey();
+      mode = "artist";
     } else if (mode == "track") {
-      var artistName = node.data.artist.replace(" ", "+")
-      var trackName = node.data.name.replace(" ", "+")
-      var newRequestURL = getRequestUrl("track.getsimilar")+"&format=json&limit=10&artist="+artistName+"&track="+trackName+"&api_key="+getApiKey()
+      var artistName = node.data.artist.replace(" ", "+");
+      var trackName = node.data.name.replace(" ", "+");
+      var newRequestURL = getRequestUrl("track.getsimilar")+"&format=json&limit=10&artist="+artistName+"&track="+trackName+"&api_key="+getApiKey();
     } else {
       
     }
@@ -174,38 +171,38 @@ $(document).ready(function(){
       {
         if (mode == "artist")
         {
-          nodes = result.similarartists.artist
+          nodes = result.similarartists.artist;
         } else {
-          nodes = result.similartracks.track
+          nodes = result.similartracks.track;
         }
         for(var i = 0; i < nodes.length; i++)
         {
           var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
-          var newWeight = nodes[i].match * 100
-          sys.addNode(nodes[i].name, {name:nodes[i].name, weight: newWeight, url: nodes[i].url, color: randomColor})
+          var newWeight = nodes[i].match * 100;
+          sys.addNode(nodes[i].name, {name:nodes[i].name, weight: newWeight, url: nodes[i].url, color: randomColor});
           
           if(typeof nodes[i].artist != "undefined")
           {
-            sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name
+            sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name;
           }
           
-          sys.addEdge(node.name, nodes[i].name)
+          sys.addEdge(node.name, nodes[i].name);
         }
       },
       error: function(request, status, error)
       {
         console.log("oops")
       }
-    })
+    });
   }
 
   
   $("#band_search input").keypress(function(e){
-    $(".limit_error").hide()
+    $(".limit_error").hide();
     if(e.which == 13)
     {
-      e.preventDefault() 
-      $("container").fadeOut(100)
+      e.preventDefault() ;
+      $("container").fadeOut(100);
       search();
       return false;
     }
@@ -215,22 +212,22 @@ $(document).ready(function(){
     //validate form
     if(!$("input#name").val())
     {
-      this.focus()
-      return
+      this.focus();
+      return;
     } 
     
     var intRegex = /^\d+$/;
-    var inputLimit = $("input#limit").val()
+    var inputLimit = $("input#limit").val();
     if(inputLimit.length > 0 && intRegex.test(inputLimit) == false)
     {
       $(".limit_error").html("Enter a number!").show();
-      $(this).focus()
+      $(this).focus();
       return
-    }
+    } 
     else if (inputLimit > 20)
     {
-      $(".limit_error").html("Enter a number less than 20!").show()
-      $(this).focus()
+      $(".limit_error").html("Enter a number less than 20!").show();
+      $(this).focus();
       return
     } 
     else if (inputLimit == 0 || inputLimit.length == 0) {
@@ -238,26 +235,26 @@ $(document).ready(function(){
       inputLimit = 10;
     }
     
-    var serial = $("input#name").val().replace(" ", "+")
-    var limitHash = $("input#limit").val()
-    window.location.hash = (limitHash.length > 0) ? "!/"+serial+"&limit="+limitHash : "!/"+serial
+    var serial = $("input#name").val().replace(" ", "+");
+    var limitHash = $("input#limit").val();
+    window.location.hash = (limitHash.length > 0) ? "!/"+serial+"&limit="+limitHash : "!/"+serial;
     
     //hide advanced search options if visible upon search
     if($("#adv_search_opts").is(":visible"))
     {
-      $("#adv_search_opts").slideToggle()
+      $("#adv_search_opts").slideToggle();
     }
     
     //If limit search parameter is marked, then execute that search
     if($("#active_force_checkbox").is(":checked"))
     {
-      var cases = {"artist":artistSearchFunc, "track": trackSearchFunc, "genre": genreSearchFunc}
-      var force_val = $("#force_search_select").val()
+      var cases = {"artist":artistSearchFunc, "track": trackSearchFunc, "genre": genreSearchFunc};
+      var force_val = $("#force_search_select").val();
       if(forces_val == "track")
       {
-        cases[force_val](inputLimit, true)
+        cases[force_val](inputLimit, true);
       } else {
-        cases[force_val](inputLimit)
+        cases[force_val](inputLimit);
       }
       
     } else {
@@ -266,20 +263,20 @@ $(document).ready(function(){
       switch(searchType(searchQuery))
       {
         case 0:
-          trackSearchFunc(inputLimit, false, null)
-          break
+          trackSearchFunc(inputLimit, false, null);
+          break;
         case 1:
-          trackSearchFunc(inputLimit, true, null)
-          break
+          trackSearchFunc(inputLimit, true, null);
+          break;
         case 2:
-          genreSearchFunc(inputLimit)
-          break
+          genreSearchFunc(inputLimit);
+          break;
         case 3:
-          artistSearchFunc(inputLimit) 
-          break
+          artistSearchFunc(inputLimit);
+          break;
         case 4:
-          artistSearchFunc(inputLimit)
-          break
+          artistSearchFunc(inputLimit);
+          break;
       } 
     }
   }
@@ -624,6 +621,20 @@ $(document).ready(function(){
       e.preventDefault()
       alert("HI!")
     }
-  })
-   
+  });
+  
+  function switchSearch(el)
+  {
+    var visible = $("form:visible")
+    var clicked = $(el.currentTarget).attr("rel");
+    if($("form#"+clicked).is(":visible"))
+    {
+      return
+    } else {
+      visible.fadeOut("fast", function(e){
+        $("form#"+clicked).fadeIn("fast")
+      })
+    }
+  }
+  
 });
