@@ -1,4 +1,13 @@
 $(document).ready(function(){
+  /*$(".canvas_container").width($(window).width() - 300)
+  $("#viewport").attr("width", $(window).width() - 300)
+  $("#viewport").attr("height", $(window).height() - 200)
+  
+  $(window).resize(function(){
+    $("#viewport").attr("width", $(this).width() - 200)
+    $("#viewport").attr("height", $(this).height() - 200)
+  })*/
+  
   $("#advanced_search").click(function(){
     $("#adv_search_opts").slideToggle(400, "easeOutCubic")
   })
@@ -91,11 +100,11 @@ $(document).ready(function(){
     }  
   })
   
-  $(".help_content a").click(function(e){
+  $(".help_content a.example").click(function(e){
     e.preventDefault()
     $("input#name").val(stripTags($(this).html(), "strong"))
     $("#help").slideToggle(400, "easeOutCubic")
-    $("#band_search").submit()
+    search()
   })
   
   function validateForm()
@@ -144,6 +153,7 @@ $(document).ready(function(){
     $.ajax({
       url: newRequestURL,
       type: 'GET',
+      dataType: "json",
       success: function(result)
       {
         if (mode == "artist")
@@ -176,16 +186,15 @@ $(document).ready(function(){
   
   $("#band_search input").keypress(function(e){
     if(e.which == 13)
-    {        
+    {
       e.preventDefault() 
       $("container").fadeOut(100)
-      $(this).submit()
-      
+      search();
       return false;
     }
   })
   
-  $("#band_search").submit(function(e){
+  function search(){
     //validate form
     if(!$("input#name").val())
     {
@@ -235,10 +244,10 @@ $(document).ready(function(){
       switch(searchType(searchQuery))
       {
         case 0:
-          trackSearchFunc(inputLimit, false)
+          trackSearchFunc(inputLimit, false, null)
           break
         case 1:
-          trackSearchFunc(inputLimit, true)
+          trackSearchFunc(inputLimit, true, null)
           break
         case 2:
           genreSearchFunc(inputLimit)
@@ -251,7 +260,7 @@ $(document).ready(function(){
           break
       } 
     }
-  })
+  }
   
   function searchType(query)
   {
@@ -302,11 +311,11 @@ $(document).ready(function(){
     $.ajax({
       url: requestURL,
 			type: 'GET',
+			dataType: "json",
 			success: function(result)
 			{
 			  if(typeof result.error != "undefined" || typeof result.similarartists.artist != "object")
 			  {
-			    console.log(result)
 			    showError()
 			    $("input#name").focus()
 			  } else {
@@ -334,6 +343,7 @@ $(document).ready(function(){
     $.ajax({
       url: getRequestUrl("tag.gettopartist") + "&tag="+genre+"&api_key="+api+"&limit="+inputLimit+"&format=json",
       type: "GET",
+      dataType: "json",
       success: function(result)
       {
         if(typeof result.error != "undefined")
@@ -348,22 +358,29 @@ $(document).ready(function(){
     })
   }
   
-  function trackSearchFunc(inputLimit, trackOnly){
+  function trackSearchFunc(inputLimit, trackOnly, extraInfo){
     if(!trackOnly)
     {
-      var info = $("input#name").val().split(" by ")
-      for(var i = 0; i<info.length; i++)
+      if(extraInfo == null)
       {
-        info[i] = toTitleCase(info[i])
+        var info = $("input#name").val().split(" by ")
+        for(var i = 0; i<info.length; i++)
+        {
+          info[i] = toTitleCase(info[i])
+        }
+        var track = info[0].replace(" ", "+")
+        var artist = info[1].replace(" ", "+")
+      } else {
+        var track = extraInfo["track"]
+        var artist = extraInfo["artist"]
       }
       var api = getApiKey()
-      var track = info[0].replace(" ", "+")
-      var artist = info[1].replace(" ", "+")
       var getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
     
       $.ajax({
         type: "GET",
         url: getUrl,
+        dataType: "json",
         success: function(result){
           if(typeof result.error != "undefined")
   			  {
@@ -381,7 +398,24 @@ $(document).ready(function(){
         }
       })
     } else {
-      alert("gonna implement!")
+      var trackQuery = $("input#name").val().split(":")
+      var trackName = toTitleCase(trackQuery[1]) 
+      var api = getApiKey()
+      var getUrl = getRequestUrl("track.search") + "&track="+trackName+"&api_key="+api+"&format=json&limit=1"
+      $.ajax({
+        type: "GET", 
+        url: getUrl,
+        dataType: "json",
+        success: function(result)
+        {
+          var resultInfo = {"track": result.results.trackmatches.track.name, "artist": result.results.trackmatches.track.artist}
+          trackSearchFunc(inputLimit, false, resultInfo)
+        },
+        error: function(xhr, status, code)
+        {
+          console.log(status)
+        }
+      })
     } 
   }
     
@@ -428,10 +462,10 @@ $(document).ready(function(){
           //text always above nodes
           ctx.fillStyle = "#000"
           ctx.font = "13pt Calibri"
-          ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.0), pt.y + Math.sqrt(10*node.data.weight) + 15)
+          ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.0), pt.y + Math.sqrt(10*node.data.weight) + 13)
           if (typeof node.data.artist == "string")
           {
-            ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 30)
+            ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 25)
           }
         })    			
       },
@@ -554,7 +588,7 @@ $(document).ready(function(){
         }
       }
 
-      $("#recommend_canvas_container").fadeIn(1000, "easeInQuad")
+      $("#viewport").fadeIn(1000, "easeInQuad")
     }
   
   $("#tell_me_search input").keypress(function(e){
