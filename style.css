@@ -119,14 +119,34 @@ select
   margin-bottom: 10px;
 }
 
-#links_wrap
+#links_left
 {
   padding: 10px 0 0 20px;
 }
 
-#links_wrap a
+#links_right
+{
+  padding: 10px 20px 0 0;
+}
+
+.links_wrap a
 {
   margin-right: 5px;
+}
+
+.left
+{
+  float: left;
+}
+
+.right
+{
+  float: right;
+}
+
+.clearfix
+{
+  clear: both;
 }
 
 .canvas_container
@@ -172,6 +192,7 @@ input[type="text"]
   border: 1px solid lightgray;
   color: teal;
   background-color: #fcfcfc;
+  width: 300px;
 }
 
 input:focus
@@ -269,7 +290,7 @@ input:focus
 
 /* Tell Me Styles */
 
-#tell_me_form
+#tell_me_form, #history_form
 {
   display: none;
 }
