@@ -219,6 +219,13 @@ input:focus
   border: 1px solid darkgray;
 }
 
+.limit_error
+{
+  display: none;
+  color: darkred;
+  vertical-align: middle;
+}
+
 #black_overlay
 {
   display: none;
