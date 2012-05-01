@@ -29,6 +29,7 @@
 	  }  
 	 });
 	</script>
+	
 </head>
 <body>
   <div id="browser_error">
@@ -62,18 +63,18 @@
           <p>So to search for an artist, simply type the artist's and hit enter. </p>
           <h4>Click an example to try it out!</h4>
           <ul>
-            <li><a href="#"><strong>Radiohead</strong></a></li>
-            <li><a href="#"><strong>Led Zeppelin</strong></a></li>
-            <li><a href="#"><strong>Miles Davis</strong></a></li>
+            <li><a class="example" href="#"><strong>Radiohead</strong></a></li>
+            <li><a class="example" href="#"><strong>Led Zeppelin</strong></a></li>
+            <li><a class="example" href="#"><strong>Miles Davis</strong></a></li>
           </ul>
         </div>
         <div class="tracks_help_content">
           <p>You can even get track recommendations! Search for a track by entering "<strong><u>{track name}</u></strong> by <strong><u>{artist name}</u></strong>", without quotes. ThenListenTo will know you want a track and not an artist or genre. You can also flag your search with "track: " or "song: " if you don't remember the artist's name!</p>
           <h4>Click an example to try it out!</h4>
             <ul>
-              <li><a href="#"><strong>15 Step</strong> by <strong>Radiohead</strong></a></li>
-              <li><a href="#"><strong>track: Stairway to Heaven</strong></a></li>
-              <li><a href="#"><strong>song: I Want To Hold Your Hand</strong></a></li>
+              <li><a class="example" href="#"><strong>15 Step</strong> by <strong>Radiohead</strong></a></li>
+              <li><a class="example" href="#"><strong>track: Stairway to Heaven</strong></a></li>
+              <li><a class="example" href="#"><strong>song: I Want To Hold Your Hand</strong></a></li>
             </ul>
           <p>ThenListenTo will always assume a search is an artist name first. To force a track name search, flag it or utilize the advanced search options.</p>
         </div>
@@ -81,9 +82,9 @@
           <p>Searching artists and tracks is specific. If you wish to get generalized recommendations on a genre, mood, or tag, you're in luck! ThenListenTo provides means to recommend artists based on these characteristics. In order to do so, first flag your search with "genre: ", "mood: ", or "tag: ".</p>
           <h4>Click an example to try it out!</h4>
           <ul>
-            <li><a href="#"><strong>genre: </strong>rock</a></li>
-            <li><a href="#"><strong>mood: </strong>happy</a></li>
-            <li><a href="#"><strong>tag: </strong>loud</a></li>
+            <li><a class="example" href="#"><strong>genre: </strong>rock</a></li>
+            <li><a class="example" href="#"><strong>mood: </strong>happy</a></li>
+            <li><a class="example" href="#"><strong>tag: </strong>loud</a></li>
           </ul>
           <p>Don't forget the colon after your chosen flag!</p>
         </div>
@@ -138,8 +139,12 @@
       <h3>Something went wrong with the search. Try again.</h3>
     </div>
     <div class="canvas_container" id="recommend_canvas_container">
-      <canvas id="viewport" height="540" width="960"></canvas>
+      <canvas id="viewport" height="700" width="960"></canvas>
       <!-- <a href="#" id="image">for image</a> -->
+    </div>
+    <div class="footer_wrap">
+      <p>ThenListenTo<sup><span style="color: teal;">beta</span></sup> is an <a href="https://github.com/chrisbenincasa/thenlistento">open source project</a> written by  <a href="http://chrisbenincasa.com/">Christian Benincasa.</a></p>
+      <p><small>All Rights Reserved. Copyright &copy; 2012</small></p>
     </div>
   </div>
   
