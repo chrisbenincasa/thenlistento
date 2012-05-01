@@ -1,3 +1,5 @@
+//Misc. Utility functions for cleaner main_branch.js
+
 function toTitleCase(str)
 {
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
@@ -6,6 +8,11 @@ function toTitleCase(str)
 function getApiKey()
 {
   return "1a144ff8653821952e65b0cda2fef616"
+}
+
+function getEchoNestApi()
+{
+  return "8S6ECJEMIGXABYTXE"
 }
 
 function getRequestUrl(method)
@@ -21,6 +28,11 @@ function getRequestUrl(method)
     case "track.search":
       return "http://ws.audioscrobbler.com/2.0/?method=track.search"
   }
+}
+
+function getEchoNestUrl(method)
+{
+  
 }
 
 function showError()
