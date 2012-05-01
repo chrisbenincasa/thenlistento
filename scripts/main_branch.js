@@ -130,14 +130,13 @@ $(document).ready(function(){
   }
 
   //Change placeholder every 3.5 seconds
-  /*setInterval(changePlaceholder, 3500)
+  setInterval(changePlaceholder, 3500)
   var searchInput = $("input#name")
   index = 1
   function changePlaceholder()
   {
     if(!searchInput.is(":focus"))
     {
-      console.log("not focused")
       placeholders = ["The Beatles", "genre: rock", "15 Step by Radiohead"]
       searchInput.attr("placeholder", placeholders[index])
       if(index == placeholders.length)
@@ -147,7 +146,7 @@ $(document).ready(function(){
         index++
       }
     }
-  }*/
+  }
   
   /*Declare ParticleSystem so it's scope is retained after AJAX*/
   var sys;
