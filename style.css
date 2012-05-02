@@ -5,11 +5,27 @@ body
   height: 100%;
 }
 
+h1, h2, h3, h4, h5, h6
+{
+  font-weight: 100;
+  margin-bottom: 2px;
+  padding-bottom: 2px;
+}
+
+h1
+{
+  font-size: 22pt;
+  margin-bottom: 5px;
+}
+
+h3
+{
+  font-size: 16pt;
+}
+
 h4
 {
   font-size: 12pt;
-  font-weight: 100;
-  margin-bottom: 2px;
 }
 
 a
@@ -250,9 +266,20 @@ input:focus
 
 .footer_wrap
 {
-  text-align: right;
+  text-align: left;
   width: 960px;
   margin: 0 auto;
+}
+
+.footer_links
+{
+  float: right;
+}
+
+.footer_links a
+{
+  margin-right: 5px;
+  font-size: 11pt;
 }
 
 .footer_wrap p 
@@ -272,4 +299,36 @@ input:focus
 #tell_me_form
 {
   display: none;
+}
+
+/* Single Page Styles */
+#about_page_wrap, #help_page_wrap
+{
+  padding-top: 10px;
+}
+
+#about_page_inner, #help_page_inner
+{
+  margin: 0 auto;
+  width: 800px;
+}
+
+.about_section, .docs_section
+{
+  margin-bottom: 10px;
+}
+
+h3.about_section_header, h3.help_section_header
+{
+  margin-bottom: 10px;
+  border-bottom: thin solid #ccc;
+}
+
+.about_footer_wrap
+{
+  border-top: thin solid #ccc;
+  text-align: left;
+  padding: 15px 0 0 0;
+  margin: 15px auto;
+  font-size: 11pt;
 }
