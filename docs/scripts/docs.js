@@ -15,7 +15,7 @@ $(document).ready(function(){
   {
     fragment = fragment.slice(1).replace(/!\//g, "");
     $(".help_page_content").load("http://thenlistento.com/docs/"+fragment+".html", function(){
-      $(".help_page_content").animate({height: $("#recommendations_help_page_wrap").height()}, 500);
+      $(".help_page_content").animate({height: $("#ajax_page_wrap").height()}, 500);
     });
   }
 });

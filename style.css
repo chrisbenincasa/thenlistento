@@ -338,3 +338,23 @@ h3.about_section_header, h3.help_section_header
   position: relative;
   overflow: hidden;
 }
+
+.help_page_content ul
+{
+  margin-left: 10px;
+}
+
+.help_page_content ul li
+{
+  list-style: none;
+}
+
+.help_page_content a
+{
+  text-decoration: none;
+}
+
+.help_page_content p
+{
+  margin-bottom: 10px;
+}
