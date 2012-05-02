@@ -1,5 +1,5 @@
 $(document).ready(function(){
-  if(window.location.hash.length > 0)
+  if(window.location.hash)
   {
     var hash = window.location.hash
     hash = hash.split("/")
@@ -237,8 +237,8 @@ $(document).ready(function(){
       //limit defaults to 10 if nothing is entered
       inputLimit = 10;
     }
-    
-    var serial = $("input#name").val().replace(" ", "+")
+    var toSerialize = $("input#name").val()
+    var serial = toSerialize.replace(/\s/g, "+")
     var limitHash = $("input#limit").val()
     window.location.hash = (limitHash.length > 0) ? "!/"+serial+"&limit="+limitHash : "!/"+serial
     
