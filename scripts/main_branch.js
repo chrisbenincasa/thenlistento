@@ -4,17 +4,28 @@ $(document).ready(function(){
     var hash = window.location.hash;
     hash = hash.split("/");
     var query = hash[1].split("&");
-    if(query.length === 2)
+    if(hash.length > 2)
     {
-      var param = query[1].split("=");
-      if(param[0] === "limit")
+      console.log(hash)
+      if(query[0] === "history")
       {
-        $("input#limit").val(param[1]);
+        switchSearch($("#history_search"))
+        $("input#history_name").val("influenced " + hash[2].replace("+", " "))
+        getBeginYear(hash[2])
       }
+    } else {  
+      if(query.length === 2)
+      {
+        var param = query[1].split("=");
+        if(param[0] === "limit")
+        {
+          $("input#limit").val(param[1]);
+        }
+      }
+      var urlSearch = query[0].replace("+", " ");
+      $("input#name").val(urlSearch);
+      search();
     }
-    var urlSearch = query[0].replace("+", " ");
-    $("input#name").val(urlSearch);
-    search();
   }
 
   $("#advanced_search").click(function(){
@@ -54,7 +65,8 @@ $(document).ready(function(){
   });
   
   $("#links_right a").click(function(e){
-    switchSearch(e);
+    console.log("thing")
+    switchSearch($(e.currentTarget));
   });
   
   /*$("#tell_me_search").click(function(e){
@@ -618,15 +630,83 @@ $(document).ready(function(){
   $("#tell_me_search input").keypress(function(e){
     if(e.which == 13)
     {
-      e.preventDefault()
+      e.preventDefault();
       alert("HI!")
     }
   });
   
+  $("#history_form input").keypress(function(e){
+    if(e.which == 13)
+    {
+      e.preventDefault();
+      //check search type. influences or influenced?
+      var influencedBy = /\b(influenced)\b\s*[A-z0-9]+(\s[A-z0-9&]*)*/
+      var input = $("input#history_name").val()
+      if(influencedBy.test(input))
+      {
+        var artist = input.split("influenced ")[1]
+        getBeginYear(artist);
+      } else {
+        alert("no!")
+      }
+    }
+  });
+  
+  function getBeginYear(artist)
+  {
+    var api = getEchoNestApi();
+    var requestUrl = getEchoNestUrl("profile") + "?name="+artist+"&api_key="+api+"&bucket=years_active"
+    $.ajax({
+      type: "GET",
+      dataType: "json",
+      url: requestUrl,
+      success: function(result)
+      {
+        var artist = result.response.artist.name.replace(" ", "+")
+        var beginYear = result.response.artist.years_active[0].start
+        beginYear -= 5;
+        influenceSearch(artist, beginYear)
+      },
+      error: function(xhr, status, code)
+      {
+        console.log(status)
+      }
+    });
+  }
+  
+  function influenceSearch(artist, beginYear)
+  {
+    var api = getEchoNestApi();
+    var niceFormatArtist = artist.replace("+", " ")
+    requestUrl = getEchoNestUrl("similar") + "?api_key="+api+"&name="+artist+"&results=10&artist_start_year_before="+beginYear
+    $.ajax({
+      type: "GET",
+      dataType: "json",
+      url: requestUrl,
+      success: function(result)
+      {
+        var lastFmBase = "http://last.fm/music/"
+        var artistArray = result.response.artists
+        for (var i = 0; i < artistArray.length; i++)
+        {
+          artistArray[i].match = 1
+          artistArray[i].url = lastFmBase + artistArray[i].name.replace(" ", "+")
+        }
+        artistArray.unshift({name: niceFormatArtist, match: 1, url: lastFmBase+artist})
+        window.location.hash = "!/history/"+artist
+        initializeGraph(result, artistArray, "artist")
+      },
+      error: function(xhr, status, code)
+      {
+        console.log(status)
+      }
+    });
+  }
+  
   function switchSearch(el)
   {
     var visible = $("form:visible")
-    var clicked = $(el.currentTarget).attr("rel");
+    var clicked = el.attr("rel");
     if($("form#"+clicked).is(":visible"))
     {
       return
