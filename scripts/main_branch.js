@@ -1,5 +1,5 @@
 $(document).ready(function(){
-  if(window.location.hash.length > 0)
+  if(window.location.hash.length)
   {
     var hash = window.location.hash;
     hash = hash.split("/");
