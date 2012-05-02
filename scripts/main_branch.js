@@ -246,10 +246,10 @@ $(document).ready(function(){
       //limit defaults to 10 if nothing is entered
       inputLimit = 10;
     }
-    
-    var serial = $("input#name").val().replace(" ", "+");
-    var limitHash = $("input#limit").val();
-    window.location.hash = (limitHash.length > 0) ? "!/"+serial+"&limit="+limitHash : "!/"+serial;
+    var toSerialize = $("input#name").val()
+    var serial = toSerialize.replace(/\s/g, "+")
+    var limitHash = $("input#limit").val()
+    window.location.hash = (limitHash.length > 0) ? "!/"+serial+"&limit="+limitHash : "!/"+serial
     
     //hide advanced search options if visible upon search
     if($("#adv_search_opts").is(":visible"))
