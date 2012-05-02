@@ -32,7 +32,13 @@ function getRequestUrl(method)
 
 function getEchoNestUrl(method)
 {
-  
+  switch(method)
+  {
+    case "profile":
+      return "http://developer.echonest.com/api/v4/artist/profile"
+    case "similar":
+      return "http://developer.echonest.com/api/v4/artist/similar"
+  }
 }
 
 function showError()
