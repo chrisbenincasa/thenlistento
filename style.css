@@ -332,3 +332,9 @@ h3.about_section_header, h3.help_section_header
   margin: 15px auto;
   font-size: 11pt;
 }
+
+.help_page_content
+{
+  position: relative;
+  overflow: hidden;
+}
