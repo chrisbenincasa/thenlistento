@@ -10,8 +10,8 @@ $(document).ready(function(){
       if(query[0] === "history")
       {
         switchSearch($("#history_search"))
-        $("input#history_name").val("influenced " + hash[2].replace("+", " "))
-        getBeginYear(hash[2])
+        $("input#history_name").val("influenced " + hash[2].replace(/[+]/g, " "))
+        getBeginYear(hash[2], 1)
       }
     } else {  
       if(query.length === 2)
@@ -22,7 +22,7 @@ $(document).ready(function(){
           $("input#limit").val(param[1]);
         }
       }
-      var urlSearch = query[0].replace("+", " ");
+      var urlSearch = query[0].replace(/[+]/g, " ");
       $("input#name").val(urlSearch);
       search();
     }
@@ -65,31 +65,9 @@ $(document).ready(function(){
   });
   
   $("#links_right a").click(function(e){
-    console.log("thing")
     switchSearch($(e.currentTarget));
   });
-  
-  /*$("#tell_me_search").click(function(e){
-    var r = $("#band_search");
-    var t = $("#tell_me_form");
-    if(r.is(":visible"))
-    {
-      r.fadeToggle("fast", "linear", function(e){
-        t.fadeToggle("fast");
-      });
-    } else {
-      t.fadeToggle("fast", "linear", function(e){
-        r.fadeToggle("fast");
-      });
-    }
-    if(typeof sys === "object")
-    {
-      sys.eachNode(function(node, pt){
-        sys.pruneNode(node.data.name);
-      });
-    }
-  });*/
-  
+
   $(".help_tabs li a").click(function(e){
     var tabs = ["artists_help_link", "tracks_help_link", "genres_help_link"];
     var link = $(this);
@@ -158,18 +136,20 @@ $(document).ready(function(){
   
   /*Declare ParticleSystem so it's scope is retained after AJAX*/
   var sys;
+  var searchCount = 0;
     
   function newSearch(node, sys, mode)
   {
-    
+    searchCount++;
+    console.log(searchCount)
     if (mode == "artist" || mode == "genre")
     {
-      var artistName = node.data.name.replace(" ", "+");
+      var artistName = node.data.name.replace(/\s/g, "+");
       var newRequestURL = getRequestUrl("artist.getsimilar")+"&format=json&limit=10&artist="+artistName+"&api_key="+getApiKey();
       mode = "artist";
     } else if (mode == "track") {
-      var artistName = node.data.artist.replace(" ", "+");
-      var trackName = node.data.name.replace(" ", "+");
+      var artistName = node.data.artist.replace(/\s/g, "+");
+      var trackName = node.data.name.replace(/\s/g, "+");
       var newRequestURL = getRequestUrl("track.getsimilar")+"&format=json&limit=10&artist="+artistName+"&track="+trackName+"&api_key="+getApiKey();
     } else {
       
@@ -210,6 +190,7 @@ $(document).ready(function(){
 
   
   $("#band_search input").keypress(function(e){
+    searchCount = 0;
     $(".limit_error").hide();
     if(e.which == 13)
     {
@@ -337,34 +318,49 @@ $(document).ready(function(){
       var artistVal = flags[0].replace(" ", "+")
     }
     var api = getApiKey()
-    var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+artistVal+"&limit="+inputLimit+"&api_key="+api
-        
+    
     $.ajax({
-      url: requestURL,
-			type: 'GET',
-			dataType: "json",
-			success: function(result)
-			{
-			  if(typeof result.error != "undefined" || typeof result.similarartists.artist != "object")
-			  {
-			    showError()
-			    $("input#name").focus()
-			  } else {
-			    var artistArray = result.similarartists.artist
-  			  var searchedArtist = result["similarartists"]["@attr"]["artist"]
-  			  artistArray.unshift({"name": searchedArtist, "url": "http://www.last.fm/music/"+searchedArtist.replace(" ", "+"), "match": 1})
-          initializeGraph(result, artistArray, "artist");    
-        }                
-	    },
+      url: getRequestUrl("artist.getcorrection") + "&artist="+artistVal+"&api_key="+api+"&format=json",
+      type: "GET",
+      dataType: "json",
+      success: function(result)
+      {
+        if (typeof result.corrections === "object")
+        {
+          artistVal = result.corrections.correction.artist.name.replace(/\s/g, "+")
+        }        
+        var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+artistVal+"&limit="+inputLimit+"&api_key="+api
+        $.ajax({
+          url: requestURL,
+    			type: 'GET',
+    			dataType: "json",
+    			success: function(result)
+    			{
+    			  if(typeof result.error != "undefined" || typeof result.similarartists.artist != "object")
+    			  {
+    			    showError()
+    			    $("input#name").focus()
+    			  } else {
+    			    var artistArray = result.similarartists.artist
+      			  var searchedArtist = result["similarartists"]["@attr"]["artist"]
+      			  artistArray.unshift({"name": searchedArtist, "url": "http://www.last.fm/music/"+searchedArtist.replace(" ", "+"), "match": 1})
+              initializeGraph(result, artistArray, "artist");    
+            }                
+    	    },
 
-			error: function(xhr, ajaxOptions, thrownError)
-			{
-			  console.log(thrownError)
-		  }
-		  
+    			error: function(xhr, ajaxOptions, thrownError)
+    			{
+    			  console.log(thrownError)
+    		  } 
+        });
+      },
+      error: function(xhr, status, code)
+      {
+        console.log(status, code)
+      }
     });
   }
-  
+
   function genreSearchFunc(inputLimit)
   {
     var genre = $("input#name").val().split(":")
@@ -483,7 +479,8 @@ $(document).ready(function(){
           ctx.fillStyle = (typeof node.data.color != "undefined") ? node.data.color : "#2E4F4F"
           ctx.strokeStyle = "#333"
           ctx.beginPath()
-          ctx.arc(pt.x, pt.y, 2.0*Math.sqrt(1.5*node.data.weight), 0, Math.PI*2, true)
+          var scale = (Math.sqrt(searchCount*0.33 + 1))
+          ctx.arc(pt.x, pt.y, 2.0*Math.sqrt(1.5*node.data.weight)/scale, 0, Math.PI*2, true)
           ctx.closePath()
           ctx.fill()
           ctx.stroke()
@@ -492,7 +489,8 @@ $(document).ready(function(){
         particleSystem.eachNode(function(node, pt){
           //text always above nodes
           ctx.fillStyle = "#000"
-          ctx.font = "13pt Calibri"
+          var fontSize = -(0.0875*Math.pow(searchCount, 2))+13
+          ctx.font = fontSize+"pt Calibri"
           ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.0), pt.y + Math.sqrt(10*node.data.weight) + 13)
           if (typeof node.data.artist == "string")
           {
@@ -627,13 +625,26 @@ $(document).ready(function(){
       $("#viewport").fadeIn(1000, "easeInQuad")
     }
   
-  $("#tell_me_search input").keypress(function(e){
+  $("#tell_me_form input").keypress(function(e){
     if(e.which == 13)
     {
       e.preventDefault();
-      alert("HI!")
+      var whoIsHot = /(what[']*s)\s\b(hot|good|new|popular)\b/
+      var locationSearch = /(in|around|near)\s(([A-z0-9]+)\s*([A-z0-9]+\s*)+)*/
+      var query = $("input#tell_name").val()
+      
+      if(whoIsHot.test(query))
+      {
+        if(locationSearch.test(query))
+        {
+          var extract = query.match(locationSearch)
+          alert("searching for stuff")
+        }
+      }     
     }
   });
+  
+  
   
   $("#history_form input").keypress(function(e){
     if(e.which == 13)
@@ -641,18 +652,24 @@ $(document).ready(function(){
       e.preventDefault();
       //check search type. influences or influenced?
       var influencedBy = /\b(influenced)\b\s*[A-z0-9]+(\s[A-z0-9&]*)*/
-      var input = $("input#history_name").val()
+      var didInfluence = /\b(did)\b\s+([A-z0-9]*)(\s[A-z0-9]*)*\b(influence[?]*)\b/
+      var input = $("input#history_name").val();
+      var serialInput = input.replace(/\s/, "+");
       if(influencedBy.test(input))
       {
-        var artist = input.split("influenced ")[1]
-        getBeginYear(artist);
+        var artist = serialInput.split("+")[1]
+        getBeginYear(artist, 1);
+      } else if(didInfluence.test(input)) {
+        var artist = serialInput.split("+")[1].replace(/\s*\b(influence[?]*)\b/, "")
+        getBeginYear(artist, 2)
       } else {
-        alert("no!")
+        var artist = input;
+        getBeginYear(artist, 1)
       }
     }
   });
   
-  function getBeginYear(artist)
+  function getBeginYear(artist, mode)
   {
     var api = getEchoNestApi();
     var requestUrl = getEchoNestUrl("profile") + "?name="+artist+"&api_key="+api+"&bucket=years_active"
@@ -662,10 +679,17 @@ $(document).ready(function(){
       url: requestUrl,
       success: function(result)
       {
-        var artist = result.response.artist.name.replace(" ", "+")
+        var artist = result.response.artist.name.replace(/\s+/g, "+")
         var beginYear = result.response.artist.years_active[0].start
-        beginYear -= 5;
-        influenceSearch(artist, beginYear)
+        if (mode === 1)
+        {
+          beginYear -= 5;
+          influenceSearch(artist, beginYear, 1)
+        } else {
+          beginYear += 7
+          influenceSearch(artist, beginYear, 2)
+        }
+
       },
       error: function(xhr, status, code)
       {
@@ -674,11 +698,19 @@ $(document).ready(function(){
     });
   }
   
-  function influenceSearch(artist, beginYear)
+  function influenceSearch(artist, beginYear, mode)
   {
     var api = getEchoNestApi();
-    var niceFormatArtist = artist.replace("+", " ")
-    requestUrl = getEchoNestUrl("similar") + "?api_key="+api+"&name="+artist+"&results=10&artist_start_year_before="+beginYear
+    var niceFormatArtist = artist.replace("+", " ");
+    if (mode === 1)
+    {
+      var requestUrl = getEchoNestUrl("similar") + "?api_key="+api+"&name="+artist+"&results=10&artist_start_year_before="+beginYear
+    } 
+    else if (mode === 2)
+    {
+      var requestUrl = getEchoNestUrl("similar") + "?api_key="+api+"&name="+artist+"&results=10&artist_start_year_after="+beginYear
+    }
+
     $.ajax({
       type: "GET",
       dataType: "json",
@@ -690,10 +722,10 @@ $(document).ready(function(){
         for (var i = 0; i < artistArray.length; i++)
         {
           artistArray[i].match = 1
-          artistArray[i].url = lastFmBase + artistArray[i].name.replace(" ", "+")
+          artistArray[i].url = lastFmBase + artistArray[i].name.replace(/\s+/g, "+")
         }
         artistArray.unshift({name: niceFormatArtist, match: 1, url: lastFmBase+artist})
-        window.location.hash = "!/history/"+artist
+        window.location.hash = mode === 1 ? "!/history/"+artist : "!/history/"+artist+"?mode=2"
         initializeGraph(result, artistArray, "artist")
       },
       error: function(xhr, status, code)
