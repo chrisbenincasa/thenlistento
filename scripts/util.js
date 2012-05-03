@@ -21,12 +21,16 @@ function getRequestUrl(method)
   {
     case "tag.gettopartist":
       return "http://ws.audioscrobbler.com/2.0/?method=tag.gettopartists"
+    case "artist.getcorrection":
+      return "http://ws.audioscrobbler.com/2.0/?method=artist.getcorrection"
     case "track.getsimilar":
       return "http://ws.audioscrobbler.com/2.0/?method=track.getsimilar"
     case "artist.getsimilar":
       return "http://ws.audioscrobbler.com/2.0/?method=artist.getsimilar"
     case "track.search":
       return "http://ws.audioscrobbler.com/2.0/?method=track.search"
+    case "chart.gethypedartists":
+      return "http://ws.audioscrobbler.com/2.0/?method=chart.getHypedArtists"
   }
 }
 
