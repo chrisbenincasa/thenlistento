@@ -55,3 +55,21 @@ function stripTags(string, tag)
   var tagMatcher = new RegExp('</?' + tag + '>','g');
   return string.replace(tagMatcher, '');
 }
+
+function scaleNode(searchCount)
+{
+  return Math.sqrt(searchCount*0.33 + 1)
+}
+
+function nodeWidth(nodeWeight, searchCount)
+{
+  var scale = scaleNode(searchCount)
+  return (2.0*Math.sqrt(1.5*nodeWeight))/scale
+}
+
+function scaleNodes(sys, searchCount)
+{
+  sys.eachNode(function(node, pt){
+    node.data.weight = nodeWidth(node.data.weight, searchCount)
+  })
+}
