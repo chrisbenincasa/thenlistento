@@ -140,8 +140,7 @@ $(document).ready(function(){
     
   function newSearch(node, sys, mode)
   {
-    searchCount++;
-    console.log(searchCount)
+    console.log(mode)
     if (mode == "artist" || mode == "genre")
     {
       var artistName = node.data.name.replace(/\s/g, "+");
@@ -161,6 +160,7 @@ $(document).ready(function(){
       dataType: "json",
       success: function(result)
       {
+        searchCount++;
         if (mode == "artist")
         {
           nodes = result.similarartists.artist;
@@ -173,7 +173,7 @@ $(document).ready(function(){
           var newWeight = nodes[i].match * 100;
           sys.addNode(nodes[i].name, {name:nodes[i].name, weight: newWeight, url: nodes[i].url, color: randomColor});
           
-          if(typeof nodes[i].artist != "undefined")
+          if(typeof nodes[i].artist !== "undefined")
           {
             sys.getNode(nodes[i].name).data.artist = nodes[i].artist.name;
           }
@@ -318,46 +318,30 @@ $(document).ready(function(){
       var artistVal = flags[0].replace(" ", "+")
     }
     var api = getApiKey()
-    
+            
+    var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+artistVal+"&autocorrect=1&limit="+inputLimit+"&api_key="+api
     $.ajax({
-      url: getRequestUrl("artist.getcorrection") + "&artist="+artistVal+"&api_key="+api+"&format=json",
-      type: "GET",
-      dataType: "json",
-      success: function(result)
-      {
-        if (typeof result.corrections === "object")
-        {
-          artistVal = result.corrections.correction.artist.name.replace(/\s/g, "+")
-        }        
-        var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+artistVal+"&limit="+inputLimit+"&api_key="+api
-        $.ajax({
-          url: requestURL,
-    			type: 'GET',
-    			dataType: "json",
-    			success: function(result)
-    			{
-    			  if(typeof result.error != "undefined" || typeof result.similarartists.artist != "object")
-    			  {
-    			    showError()
-    			    $("input#name").focus()
-    			  } else {
-    			    var artistArray = result.similarartists.artist
-      			  var searchedArtist = result["similarartists"]["@attr"]["artist"]
-      			  artistArray.unshift({"name": searchedArtist, "url": "http://www.last.fm/music/"+searchedArtist.replace(" ", "+"), "match": 1})
-              initializeGraph(result, artistArray, "artist");    
-            }                
-    	    },
+      url: requestURL,
+			type: 'GET',
+			dataType: "json",
+			success: function(result)
+			{
+			  if(typeof result.error != "undefined" || typeof result.similarartists.artist != "object")
+			  {
+			    showError()
+			    $("input#name").focus()
+			  } else {
+			    var artistArray = result.similarartists.artist
+  			  var searchedArtist = result["similarartists"]["@attr"]["artist"]
+  			  artistArray.unshift({"name": searchedArtist, "url": "http://www.last.fm/music/"+searchedArtist.replace(" ", "+"), "match": 1})
+          initializeGraph(result, artistArray, "artist");    
+        }                
+	    },
 
-    			error: function(xhr, ajaxOptions, thrownError)
-    			{
-    			  console.log(thrownError)
-    		  } 
-        });
-      },
-      error: function(xhr, status, code)
-      {
-        console.log(status, code)
-      }
+			error: function(xhr, ajaxOptions, thrownError)
+			{
+			  console.log(thrownError)
+		  } 
     });
   }
 
@@ -402,7 +386,7 @@ $(document).ready(function(){
         var artist = extraInfo["artist"]
       }
       var api = getApiKey()
-      var getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
+      var getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&autocorrect=1&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
     
       $.ajax({
         type: "GET",
@@ -451,8 +435,11 @@ $(document).ready(function(){
     var Renderer = function(canvas){
     var canvas = $(canvas).get(0)
     var ctx = canvas.getContext("2d");
-    var particleSystem
 
+    var particleSystem
+    var radius = 0,
+        scale = 0,
+        fontSize = 0;
     var that = {
       init:function(system){
         particleSystem = system
@@ -464,7 +451,8 @@ $(document).ready(function(){
       redraw:function(){
         ctx.fillStyle = "white"
         ctx.fillRect(0,0, canvas.width, canvas.height)
-
+        ctx.globalCompositeOperation = "source-atop";
+        
         particleSystem.eachEdge(function(edge, pt1, pt2){
           ctx.strokeStyle = "#ccc"
           ctx.lineWidth = 1.5
@@ -472,31 +460,30 @@ $(document).ready(function(){
           ctx.moveTo(pt1.x, pt1.y)
           ctx.lineTo(pt2.x, pt2.y)
           ctx.stroke()
-        })
+        });
 
         particleSystem.eachNode(function(node, pt)
         {
           ctx.fillStyle = (typeof node.data.color != "undefined") ? node.data.color : "#2E4F4F"
           ctx.strokeStyle = "#333"
           ctx.beginPath()
-          var scale = (Math.sqrt(searchCount*0.33 + 1))
-          ctx.arc(pt.x, pt.y, 2.0*Math.sqrt(1.5*node.data.weight)/scale, 0, Math.PI*2, true)
+          scale = (Math.sqrt(searchCount*0.33 + 1))
+          radius = 2.0*Math.sqrt(1.5*node.data.weight)/scale
+          ctx.arc(pt.x, pt.y, radius, 0, Math.PI*2, true)
           ctx.closePath()
           ctx.fill()
           ctx.stroke()
-        })
-        
-        particleSystem.eachNode(function(node, pt){
+          
           //text always above nodes
           ctx.fillStyle = "#000"
-          var fontSize = -(0.0875*Math.pow(searchCount, 2))+13
+          fontSize = -(0.0875*Math.pow(searchCount, 2))+13
           ctx.font = fontSize+"pt Calibri"
-          ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.0), pt.y + Math.sqrt(10*node.data.weight) + 13)
+          ctx.fillText(node.data.name, pt.x - (node.data.name.length * 4.0), pt.y + Math.sqrt(25*radius) + 15)
           if (typeof node.data.artist == "string")
           {
-            ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y + Math.sqrt(10*node.data.weight) + 25)
+            ctx.fillText(node.data.artist, pt.x - (node.data.artist.length * 4.12), pt.y + Math.sqrt(25*radius) + 30)
           }
-        })    			
+        });  			
       },
 
       initMouseHandling:function(){
@@ -588,7 +575,7 @@ $(document).ready(function(){
         })
       } else {
         sys = arbor.ParticleSystem(1000, 600, 0.5)
-        sys.parameters({gravity:true, precision: 0.9, dt: 0.015})
+        sys.parameters({gravity:true, precision: 0.75, dt: 0.015})
         sys.renderer = Renderer("#viewport")
       }
       
@@ -639,13 +626,43 @@ $(document).ready(function(){
         {
           var extract = query.match(locationSearch)
           alert("searching for stuff")
+        } else {
+          hotSearch(toTitleCase(query))
         }
-      }     
+      } else {
+        alert("that's not right")
+      }   
     }
   });
   
-  
-  
+  function hotSearch(query)
+  {
+    api = getApiKey();
+    searchUrl = getRequestUrl("chart.gethypedartists") + "&api_key="+api+"&limit=10&format=json"
+    $.ajax({
+      url: searchUrl,
+      type: "GET",
+      dataType: "json",
+      success: function(result)
+      {
+        var resultArray = result.artists.artist
+        var artistArray = [];
+        artistArray.push({"name": query, "match": 1})
+        for(var key in resultArray)
+        {
+          artistArray.push({"name": resultArray[key].name, "match": 1})
+        }
+       
+       initializeGraph(result, artistArray, "artist")
+       
+      },
+      error: function(xhr, status, code)
+      {
+        console.log(status, code)
+      }
+    });
+  }
+
   $("#history_form input").keypress(function(e){
     if(e.which == 13)
     {
