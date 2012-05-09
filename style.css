@@ -384,3 +384,9 @@ h3.about_section_header, h3.help_section_header
 {
   margin-bottom: 10px;
 }
+
+circle
+{
+  stroke: #666;
+  stroke-width: 1.5px;
+}
