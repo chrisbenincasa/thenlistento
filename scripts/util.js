@@ -31,6 +31,10 @@ function getRequestUrl(method)
       return "http://ws.audioscrobbler.com/2.0/?method=track.search"
     case "chart.gethypedartists":
       return "http://ws.audioscrobbler.com/2.0/?method=chart.getHypedArtists"
+    case "geo.getmetrohype":
+      return "http://ws.audioscrobbler.com/2.0/?method=geo.getmetrohypeartistchart&format=json"
+    case "geo.getmetros":
+      return "http://ws.audioscrobbler.com/2.0/?method=geo.getMetros&format=json"
   }
 }
 
@@ -72,4 +76,44 @@ function scaleNodes(sys, searchCount)
   sys.eachNode(function(node, pt){
     node.data.weight = nodeWidth(node.data.weight, searchCount)
   })
+}
+
+function verifyMetro(query)
+{
+  var api = getApiKey(),
+      url = getRequestUrl("geo.getmetros")+"&api_key="+api,
+      match = null;
+  $.ajax({
+    url: url,
+    type: "GET",
+    async: false,
+    dataType: "json",
+    success: function(result)
+    {
+      query = toTitleCase(query)
+      var metros = result.metros.metro
+      for(key in metros)
+      {
+        if(query === metros[key].name)
+        {
+          console.log("HI!")
+          match = {"country": metros[key].country,
+                    "name"  : metros[key].name}
+        }
+        else if(query === metros[key].country)
+        {
+          console.log("country!")
+          match = true;
+        }
+      }
+    }
+  })
+  return match;
+}
+
+function loadGoogleMaps() {
+  var script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "http://maps.googleapis.com/maps/api/js?key=AIzaSyAB7n-BQCLR3ZoDirh8c6omfsGSId3rvcw&sensor=true&callback=mapsLoaded";
+  document.body.appendChild(script);
 }
