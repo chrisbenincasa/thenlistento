@@ -390,3 +390,13 @@ circle
   stroke: #666;
   stroke-width: 1.5px;
 }
+
+.faded
+{
+  opacity: 0.5;
+}
+
+line.dashed
+{
+  stroke-dasharray: 9, 5;
+}
