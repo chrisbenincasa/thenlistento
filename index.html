@@ -100,19 +100,19 @@
       </div>
     </div>
   </div>
-  <div id="links_right" class="right links_wrap">
-    <a href="#" id="recommend_search" rel="band_search">Recommend</a>
-    <a href="#" id="tell_me_search" rel="tell_me_form">What's Hot</a>
-    <a href="#" id="history_search" rel="history_form">History</a>
-    <div class="clearfix"></div>
-  </div>
-  <div id="links_left" class="links_wrap left">
-    <a href="#" class="about_link">About</a>
-    <a href="#" class="help_link">Help</a>
-    <div class="clearfix"></div>
-  </div>
+  <div class="head_wrap">
+    <div id="links_right" class="right links_wrap">
+      <a href="#" id="recommend_search" rel="band_search">Recommend</a>
+      <a href="#" id="tell_me_search" rel="tell_me_form">What's Hot</a>
+      <a href="#" id="history_search" rel="history_form">History</a>
       <div class="clearfix"></div>
-  <div id="main_container">
+    </div>
+    <div id="links_left" class="links_wrap left">
+      <a href="#" class="about_link">About</a>
+      <a href="#" class="help_link">Help</a>
+      <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
     <div class="header_container">
       <form id="band_search">
         <h2>You like</h2>
@@ -152,12 +152,14 @@
         <small>Press 'enter' to search.</small>
       </p>
     </div>
+  </div>
+  <div id="main_container">
     <div class="search_error">
       <h3>Something went wrong with the search. Try again.</h3>
     </div>
     <div class="canvas_container" id="recommend_canvas_container">
       <!-- <canvas id="viewport" height="700" width="960"></canvas> -->
-      <svg class="graph" height="700" width="960"></svg>
+      <svg class="graph" height="720" width="960"></svg>
       <div id="hidden_results"></div>
       <!-- <a href="#" id="image">for image</a> -->
     </div>
