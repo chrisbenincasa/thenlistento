@@ -140,13 +140,25 @@ $(document).ready(function(){
     }
   }
   
-  /* Helpers */
+  /* Declarations */
   var searchCount = 0,
       svg = d3.select("svg.graph"),
       force,
       node,
       link,
-      data = {};
+      data = {},
+      foci = [
+        {x: 380, y: 260}, 
+        {x: 480, y: 260},
+        {x: 580, y: 260},
+        {x: 380, y: 360},
+        {x: 580, y: 360},
+        {x: 380, y: 260},
+        {x: 480, y: 360},
+        {x: 580, y: 360}
+      ],
+      strengthScale = d3.scale.sqrt().range([0,0.1]),
+      distanceScale = d3.scale.sqrt().domain([0,100]).range([180,200])
   
   function resetGraph()
   {
@@ -157,12 +169,30 @@ $(document).ready(function(){
     }
 
     force = d3.layout.force()
-      .charge(function(d){return -d.match * 50;})
-      .linkDistance(function(d){return 15*Math.sqrt(d.target.match)})
-      .size([960,720])
+      .charge(-5000)
+      .linkDistance(function(d){
+      /*return 13*Math.sqrt((searchCount+1)*d.target.match)*/ 
+        return distanceScale(d.target.match)
+        })
+      .linkStrength(function(d){
+        return 0.1
+        //return strengthScale((searchCount+1)*d.target.match)
+        })
+      .size([960,550])
       .on("tick", tick);
   }
   
+  function transitionListen()
+  {
+    var trackForce = setInterval(function(){
+      console.log(force.alpha())
+      if(force.alpha() == 0)
+      {
+        clearInterval(trackForce)
+      }
+    }, 500)
+  }
+
   $("#band_search input").keypress(function(e){
     searchCount = 0;
     $(".limit_error").hide();    
@@ -285,6 +315,7 @@ $(document).ready(function(){
   
   function artistSearchFunc(inputLimit)
   {
+    searchCount = 0;
     var flags = $("input#name").val().split(":")
     if(flags.length > 1)
     {
@@ -312,6 +343,7 @@ $(document).ready(function(){
   
   function trackSearchFunc(inputLimit, trackOnly, extraInfo)
   {
+    searchCount = 0;
     if(!trackOnly)
     {
       if(extraInfo === null)
@@ -349,6 +381,7 @@ $(document).ready(function(){
   
   function genreSearchFunc(inputLimit)
   {
+    searchCount = 0;
     var genre = $("input#name").val().split(":");
     var genre = genre[1].replace(/\s/g, "")
     var api = getApiKey(),
@@ -371,7 +404,7 @@ $(document).ready(function(){
   {
     data["nodes"] = []
     data["links"] = []
-    
+    var generatedFocus = ~~(Math.random() * foci.length)
     if(mode === "genre")
     {
       data["nodes"].push({
@@ -379,7 +412,8 @@ $(document).ready(function(){
         "match" : 75,
         "url"   : "#",
         "id"    : "node_"+(Date.now()).toString(),
-        "r"     : 1.33*Math.sqrt(75)
+        "r"     : 1.33*Math.sqrt(75),
+        "focus" : generatedFocus
         })
     }
     else if (mode === "artist" || mode === "hot")
@@ -388,7 +422,8 @@ $(document).ready(function(){
         "name"  : toTitleCase(extraInfo),
         "match" : 100,
         "id"    : "node_"+(Date.now()).toString(),
-        "r"     : 1.33*Math.sqrt(100)
+        "r"     : 1.33*Math.sqrt(100),
+        "focus" : generatedFocus
       })
     } else if (mode === "track")
     {
@@ -397,12 +432,14 @@ $(document).ready(function(){
         "artist": toTitleCase(extraInfo["artist"]),
         "match" : 100,
         "id"    : "node_"+(Date.now()).toString(),
-        "r"     : 1.33*Math.sqrt(100)
+        "r"     : 1.33*Math.sqrt(100),
+        "focus" : generatedFocus
       })
     }
       
     for(i in infoArray)
     { 
+      generatedFocus = ~~(Math.random() * foci.length)
       var match = (mode != "genre") ? infoArray[i].match * 100 : 75
       if(mode === "hot")
       {
@@ -414,7 +451,8 @@ $(document).ready(function(){
         "match" : match,
         "url"   : infoArray[i].url,
         "id"    : "node_"+(Date.now()+i).toString(),
-        "r"     : 1.33*Math.sqrt(match)
+        "r"     : 1.33*Math.sqrt(match),
+        "focus" : generatedFocus
       })
       var currentLength = data["nodes"].length
       if(mode === "track")
@@ -423,11 +461,10 @@ $(document).ready(function(){
       }
     }
     
-    for(var i = 0; i < data["nodes"].length; i++)
+    for(var i = 1; i < data["nodes"].length; i++)
     {
       data["links"].push({"source": 0, "target": i})
     }
-    
   }
   
   function initializeGraph(result, data, mode)
@@ -455,7 +492,7 @@ $(document).ready(function(){
     names = svg.select("g.names").selectAll("text.name")
       .data(data["nodes"])
       .enter().append("text")
-      //.attr("class", function(d){return "name "+d.id})
+      .attr("class", function(d){return "name "+d.id})
       .style("color", "black")
       .style("text-anchor", "middle")
       .style("font-size", "0px")
@@ -478,7 +515,8 @@ $(document).ready(function(){
      .delay(3000)
      .duration(100)
      .style("font-size", "14px")
-     
+    
+    fixTransitions()
     $(".graph").fadeIn(100)  
   }
   
@@ -520,33 +558,52 @@ $(document).ready(function(){
       }*/
       var xPos = ~~(n.x),
           yPos = ~~(n.y)
-      node.each(function(d,i){
+      /*node.each(function(d,i){
         var diffX = xPos - ~~(d.x),
             diffY = yPos - ~~(d.y)
             hypo = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2))
-        if(hypo < 200)
+        if(hypo < 150)
         {
           if(n.index !== d.index)
           {
-            svg.selectAll("."+d.id).classed("faded", true).transition().style("opacity", "0.5");
-            svg.selectAll("line."+d.id).classed("connected", true).transition().style("stroke", "red");
+            $("circle:not(."+n.id+")").css("opacity", "0.5")
+            //svg.selectAll("."+d.id).classed("faded", true).transition().style("opacity", "0.5");
+            svg.selectAll("line."+n.id).classed("connected", true).transition().style("stroke", "red");
           }
         }
+      })*/
+      
+      d3.select("circle."+n.id).classed("linked_node", true)
+      link.each(function(d,i){
+        if(d.target.index === n.index || d.source.index === n.index)
+        {
+          d3.select(this).classed("red", true).transition().style("stroke", "red")
+          d3.select("circle."+d.source.id).classed("linked_node", true)
+          d3.select("circle."+d.target.id).classed("linked_node", true)
+          d3.select("text."+d.source.id).classed("linked_text", true)
+          d3.select("text."+d.target.id).classed("linked_text", true)
+        }
       })
+      
+      d3.selectAll("circle").filter(":not(.linked_node)").classed("fade", true).transition().style("opacity", "0.5")
+      d3.selectAll("text").filter(":not(.linked_text)").classed("fade", true).transition().style("opacity", "0.5") 
   });
    
   $(document).on("mouseout", "circle", function(e){
    n = e.target.__data__;
-   svg.selectAll("text."+n.id).remove();
-   svg.selectAll(".faded").classed("faded", false).transition().style("opacity", "1.0");
-   svg.selectAll("line.connected").classed("connected", false).transition().style("stroke", "#aaa")
+   d3.selectAll(".linked_node").classed("linked_node", false);
+   d3.selectAll(".linked_text").classed("linked_text", false);
+   d3.selectAll(".fade").classed("fade", false).transition().style("opacity", "1.0");
+   d3.selectAll("line.red").classed("red", false).transition().style("stroke", "#999");
   })
    
   function addNodes(d, n)
   {
+    ++searchCount;
     var artists = d.similarartists.artist,
-        indexes = []
-    node.each(function(a,j){
+        indexes = [],
+        generatedFocus = ~~(Math.random() * foci.length)
+    node.each(function(a){
       for(i in artists)
       {
         if(artists[i].name === a.name)
@@ -562,54 +619,60 @@ $(document).ready(function(){
     })
 
     for(i in artists)
-    {       
+    { 
+      generatedFocus = ~~(Math.random() * foci.length)
       data["nodes"].push({
         "name"  : artists[i].name,
         "match" : artists[i].match*100,
         "url"   : artists[i].url,
         "id"    : "node_"+(Date.now() + i).toString(),
-        "r"     : 1.33*Math.sqrt(artists[i].match*100) 
+        "r"     : 1.33*Math.sqrt(artists[i].match*100),
+        "focus" : generatedFocus
       })            
 
       data["links"].push({
         "source": n.index,
         "target": data["nodes"].length - 1 
       })     
-     }      
+     } 
+     
+     force.nodes(data["nodes"]).links(data["links"]).start();
+     
+     link = link.data(data["links"])
+          
+     link.enter().append("line")
+       .attr("class", function(d){return "link "+d.source.id+" "+d.target.id})
+       .style("stroke-width", 1.1)
+       .style("stroke", "#fff")
+       .attr("x1", function(d){return d.source.x})
+       .attr("y1", function(d){return d.source.y})
+       .attr("x2", function(d){return d.target.x})
+       .attr("y2", function(d){return d.target.y}).transition()
+          .duration(65)
+          .delay(function(d,i){return i*20})
+          .attr("stroke-width", 1.1)
+          .style("stroke", "#999")
+     
      node = svg.select("g.nodes").selectAll("circle.node")
        .data(data["nodes"])
 
-     node.exit().remove()
-
+     //node.exit().remove()
+     
      node.enter().append("circle")
      .attr("class", function(d){return "node "+d.id})
      .attr("r", 0)
-     .style("fill", function(i){return "#"+Math.floor(Math.random()*16777215).toString(16);})
+     .style("fill", function(){return "#"+Math.floor(Math.random()*16777215).toString(16);})
      .call(force.drag)
-
-     //node.append("title").text(function(d){return d.name})
-
-     link = svg.select("g.links").selectAll("line.link")
-       .data(data["links"])
-
-     link.exit().remove()
-
-     var newLinks = link.enter().append("line")
-     .attr("class", "link")
-     .style("stroke-width", 1.1)
-     .style("stroke", "#fff")
-     .attr("x1", function(d){return d.source.x})
-     .attr("y1", function(d){return d.source.y})
-     .attr("x2", function(d){return d.target.x})
-     .attr("y2", function(d){return d.target.y})
      
+     //node.append("title").text(function(d){return d.name})
+       
      names = svg.select("g.names").selectAll("text.name")
         .data(data["nodes"])
      
-     names.exit().remove()
+     //names.exit().remove()
      
-     var newNames = names.enter().append("text")
-        //.attr("class", function(d){return "name "+d.id})
+     names.enter().append("text")
+        .attr("class", function(d){return "name "+d.id})
         .style("font-size", "0px")
         .style("text-anchor", "middle")
         .attr("x", function(d){return d.x})
@@ -626,38 +689,52 @@ $(document).ready(function(){
        .duration(150)
        .delay(function(d,i){return i*20})
        .attr("r", function(d){return d.r})
-
-     link.transition()
-       .duration(65)
-       .delay(function(d,i){return i*20})
-       .attr("stroke-width", 1.1)
-       .style("stroke", "#666")
        
      names.transition()
         .duration(100)
         .delay(function(d,i){return i*20})
         .style("font-size", "14px");
     
-     force.linkDistance(function(d){return 15*Math.sqrt(d.target.match)})
-
+     //force.linkDistance(function(d){return 15*Math.sqrt(d.target.match)})
+     fixTransitions();
      node.on("dblclick", function(n){window.location = "http://"+n.url})
   }   
+  
+  function fixTransitions(){
+    var clock = setInterval(function(e){
+      if(force.alpha() < 0.0051)
+      {
+        d3.selectAll("circle").transition()
+          .attr("r", function(d){return 1.33*Math.sqrt(d.match)})
+          .style("opacity", "1.0");
+        d3.selectAll("text").transition()
+          .style("font-size", "14px")
+          .style("opacity", "1.0")
+        clearInterval(clock)
+      }
+    }, 500)
+  }
     
   function tick(d,i)
   {
+    //Mutiple foci functionality, needs more testing
+    // var k = .1 * d.alpha;
+    //     node.each(function(o, i) {
+    //       o.y += (foci[o.focus].y - o.y) * k;
+    //       o.x += (foci[o.focus].x - o.x) * k;
+    //     });
+    node.attr("cx", function(d) {return d.x = Math.max(d.r, Math.min(960 - d.r, d.x)); })
+        .attr("cy", function(d) { return d.y = Math.max(d.r, Math.min(680 - d.r, d.y)); });
+  
    link.attr("x1", function(d){return d.source.x})
       .attr("y1", function(d){return d.source.y})
       .attr("x2", function(d){return d.target.x})
       .attr("y2", function(d){return d.target.y})
-
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-    
+  
     names.attr("x", function(d){return d.x})
          .attr("y", function(d){return d.y + (d.r + 17)});
     
-    //names.attr("x", function(d){console.log(d)})
-  }   
+  } 
   
   $("#tell_me_form input").keypress(function(e){
     if(e.which == 13)
