@@ -9,9 +9,15 @@ $(document).ready(function(){
     {
       if(query[0] === "history")
       {
-        switchSearch($("#history_search"))
+        switchSearch(null, "history_form")
         $("input#history_name").val("influenced " + hash[2].replace(/[+]/g, " "))
         getBeginYear(hash[2], 1)
+      }
+      else if(query[0] === "hot")
+      {
+        switchSearch(null, "tell_me_form")
+        $("input#tell_name").val("what's hot in "+hash[2].replace(/[+]/g, " "))
+        hotSearch($("input#tell_name").val())
       }
     } else {  
       if(query.length === 2)
@@ -69,10 +75,12 @@ $(document).ready(function(){
     switchSearch($(e.currentTarget));
   });
 
-  function switchSearch(el)
+  function switchSearch(el, override)
   {
-    var visible = $("form:visible")
-    var clicked = el.attr("rel");
+    var clicked = (typeof override == "undefined") ? el.attr("rel") : override,
+        visible = $("form:visible")
+    //var clicked = el.attr("rel");
+    console.log(clicked)
     if($("form#"+clicked).is(":visible"))
     {
       return
@@ -179,7 +187,7 @@ $(document).ready(function(){
       ],
       leafIter = 0,
       rootIter = 0,
-      strengthScale = d3.scale.sqrt().range([0,0.1]),
+      strengthScale = d3.scale.sqrt().range([0,0.133]),
       distanceScale = d3.scale.sqrt().domain([0,100]).range([20,80])
   
   function resetGraph()
@@ -198,11 +206,11 @@ $(document).ready(function(){
         return distanceScale(d.target.match)
         })
       .linkStrength(function(d){
-        return 0.2
+        return 0.18
         //return strengthScale((searchCount+1)*d.target.match)
         })
       .gravity(0.1)
-      .size([900,600])
+      .size([960,600])
       .on("tick", tick);
   }
   
@@ -724,8 +732,11 @@ $(document).ready(function(){
         .delay(function(d,i){return i*20})
         .style("font-size", "14px");
     
-    var k = Math.sqrt(node[0].length / (900*550))
-    force.gravity(100 * k).charge((-15/k)*Math.sqrt(searchCount))
+    var k = Math.sqrt(node[0].length / (960*600))
+    force.gravity(100 * k).charge(function(d){
+      console.log(strengthScale(d.match))
+      return strengthScale(d.match) * (-15/k)*Math.sqrt(searchCount)
+    })
     console.log(force.gravity(), force.charge())
     fixTransitions();
     node.on("dblclick", function(n){window.location = "http://"+n.url})
@@ -853,6 +864,7 @@ $(document).ready(function(){
         d3.json(url, function(d){
           resetGraph();
           updateData(d.topartists.artist, "genre", d.topartists["@attr"].metro);
+          window.location.hash = "!/hot/"+d.topartists["@attr"].metro
           initializeGraph(d, data, "artist");
         })
       }
