@@ -49,9 +49,15 @@ function getEchoNestUrl(method)
   }
 }
 
-function showError()
+function showError(message)
 {
-  $(".search_error").fadeIn("fast")
+  message = (typeof message == "undefined") ? null : message
+  if(message != null)
+  {
+    $(".search_error").html(message).fadeIn("fast");
+  } else {
+    $(".search_error").fadeIn("fast");
+  }
 }
 
 function stripTags(string, tag) 
@@ -96,9 +102,8 @@ function verifyMetro(query)
       {
         if(query === metros[key].name)
         {
-          console.log("HI!")
           match = {"country": metros[key].country,
-                    "name"  : metros[key].name}
+                    "metro"  : metros[key].name}
         }
         else if(query === metros[key].country)
         {
