@@ -147,18 +147,40 @@ $(document).ready(function(){
       node,
       link,
       data = {},
-      foci = [
-        {x: 380, y: 260}, 
-        {x: 480, y: 260},
-        {x: 580, y: 260},
-        {x: 380, y: 360},
-        {x: 580, y: 360},
-        {x: 380, y: 260},
-        {x: 480, y: 360},
-        {x: 580, y: 360}
+      leafFoci = [
+        {x: 50, y: 50}, 
+        {x: 250, y: 50},
+        {x: 450, y: 50},
+        {x: 650, y: 50},
+        {x: 850, y: 50},
+        {x: 50, y: 172},
+        {x: 50, y: 284},
+        {x: 50, y: 396},
+        {x: 850, y: 162},
+        {x: 850, y: 274},
+        {x: 850, y: 386},
+        {x: 50, y: 500}, 
+        {x: 250, y: 500},
+        {x: 450, y: 500},
+        {x: 650, y: 500},
+        {x: 850, y: 500},
       ],
+      rootFoci = [
+        {x: 250, y: 162},
+        {x: 383, y: 162},
+        {x: 516, y: 162},
+        {x: 649, y: 162},
+        {x: 250, y: 325},
+        {x: 649, y: 325},
+        {x: 250, y: 488},
+        {x: 383, y: 488},
+        {x: 516, y: 488},
+        {x: 649, y: 488}
+      ],
+      leafIter = 0,
+      rootIter = 0,
       strengthScale = d3.scale.sqrt().range([0,0.1]),
-      distanceScale = d3.scale.sqrt().domain([0,100]).range([180,200])
+      distanceScale = d3.scale.sqrt().domain([0,100]).range([20,80])
   
   function resetGraph()
   {
@@ -166,19 +188,21 @@ $(document).ready(function(){
     {
       node.data([]).exit().remove()
       link.data([]).exit().remove()
+      names.data([]).exit().remove()
     }
-
+      
     force = d3.layout.force()
-      .charge(-5000)
+      .charge(-3000)
       .linkDistance(function(d){
-      /*return 13*Math.sqrt((searchCount+1)*d.target.match)*/ 
+      //return 13*Math.sqrt((searchCount+1)*d.target.match)
         return distanceScale(d.target.match)
         })
       .linkStrength(function(d){
-        return 0.1
+        return 0.2
         //return strengthScale((searchCount+1)*d.target.match)
         })
-      .size([960,550])
+      .gravity(0.1)
+      .size([900,600])
       .on("tick", tick);
   }
   
@@ -194,10 +218,10 @@ $(document).ready(function(){
   }
 
   $("#band_search input").keypress(function(e){
-    searchCount = 0;
-    $(".limit_error").hide();    
+    $(".search_error").hide();    
     if(e.which == 13)
     {
+      searchCount = 0;
       e.preventDefault();
       $(".graph").fadeOut(100);      
       search();
@@ -404,7 +428,6 @@ $(document).ready(function(){
   {
     data["nodes"] = []
     data["links"] = []
-    var generatedFocus = ~~(Math.random() * foci.length)
     if(mode === "genre")
     {
       data["nodes"].push({
@@ -413,7 +436,8 @@ $(document).ready(function(){
         "url"   : "#",
         "id"    : "node_"+(Date.now()).toString(),
         "r"     : 1.33*Math.sqrt(75),
-        "focus" : generatedFocus
+        "root"  : 1,
+        "focus" : rootFoci[rootIter]
         })
     }
     else if (mode === "artist" || mode === "hot")
@@ -423,7 +447,8 @@ $(document).ready(function(){
         "match" : 100,
         "id"    : "node_"+(Date.now()).toString(),
         "r"     : 1.33*Math.sqrt(100),
-        "focus" : generatedFocus
+        "root"  : 1,
+        "focus" : rootFoci[rootIter]
       })
     } else if (mode === "track")
     {
@@ -433,13 +458,13 @@ $(document).ready(function(){
         "match" : 100,
         "id"    : "node_"+(Date.now()).toString(),
         "r"     : 1.33*Math.sqrt(100),
-        "focus" : generatedFocus
+        "root"  : 1,
+        "focus" : rootFoci[rootIter]
       })
     }
       
     for(i in infoArray)
     { 
-      generatedFocus = ~~(Math.random() * foci.length)
       var match = (mode != "genre") ? infoArray[i].match * 100 : 75
       if(mode === "hot")
       {
@@ -452,7 +477,8 @@ $(document).ready(function(){
         "url"   : infoArray[i].url,
         "id"    : "node_"+(Date.now()+i).toString(),
         "r"     : 1.33*Math.sqrt(match),
-        "focus" : generatedFocus
+        "root"  : 0,
+        "focus" : leafFoci[leafIter]
       })
       var currentLength = data["nodes"].length
       if(mode === "track")
@@ -465,6 +491,8 @@ $(document).ready(function(){
     {
       data["links"].push({"source": 0, "target": i})
     }
+    rootIter++;
+    leafIter++;
   }
   
   function initializeGraph(result, data, mode)
@@ -599,10 +627,11 @@ $(document).ready(function(){
    
   function addNodes(d, n)
   {
+    n.root = 1;
+    n.focus = rootFoci[rootIter]
     ++searchCount;
     var artists = d.similarartists.artist,
-        indexes = [],
-        generatedFocus = ~~(Math.random() * foci.length)
+        indexes = [];
     node.each(function(a){
       for(i in artists)
       {
@@ -620,14 +649,14 @@ $(document).ready(function(){
 
     for(i in artists)
     { 
-      generatedFocus = ~~(Math.random() * foci.length)
       data["nodes"].push({
         "name"  : artists[i].name,
         "match" : artists[i].match*100,
         "url"   : artists[i].url,
         "id"    : "node_"+(Date.now() + i).toString(),
         "r"     : 1.33*Math.sqrt(artists[i].match*100),
-        "focus" : generatedFocus
+        "root"  : 0,
+        "focus" : leafFoci[leafIter]
       })            
 
       data["links"].push({
@@ -695,9 +724,13 @@ $(document).ready(function(){
         .delay(function(d,i){return i*20})
         .style("font-size", "14px");
     
-     //force.linkDistance(function(d){return 15*Math.sqrt(d.target.match)})
-     fixTransitions();
-     node.on("dblclick", function(n){window.location = "http://"+n.url})
+    var k = Math.sqrt(node[0].length / (900*550))
+    force.gravity(100 * k).charge((-15/k)*Math.sqrt(searchCount))
+    console.log(force.gravity(), force.charge())
+    fixTransitions();
+    node.on("dblclick", function(n){window.location = "http://"+n.url})
+    rootIter++
+    leafIter++
   }   
   
   function fixTransitions(){
@@ -717,13 +750,15 @@ $(document).ready(function(){
     
   function tick(d,i)
   {
-    //Mutiple foci functionality, needs more testing
-    // var k = .1 * d.alpha;
-    //     node.each(function(o, i) {
-    //       o.y += (foci[o.focus].y - o.y) * k;
-    //       o.x += (foci[o.focus].x - o.x) * k;
-    //     });
-    node.attr("cx", function(d) {return d.x = Math.max(d.r, Math.min(960 - d.r, d.x)); })
+     /*var k = .2 * d.alpha;
+         node.each(function(o, i) {
+           o.y += (o.focus.y - o.y) * k;
+           o.x += (o.focus.x - o.x) * k;
+         });*/
+    node.attr("cx", function(d) {
+        var text = d3.select("text."+d.id)
+        return d.x = Math.max(d.r, Math.min(960 - d.r, d.x)); 
+        })
         .attr("cy", function(d) { return d.y = Math.max(d.r, Math.min(680 - d.r, d.y)); });
   
    link.attr("x1", function(d){return d.source.x})
@@ -737,8 +772,10 @@ $(document).ready(function(){
   } 
   
   $("#tell_me_form input").keypress(function(e){
+    $(".search_error").hide();
     if(e.which == 13)
     {
+      searchCount = 0;
       e.preventDefault();
       var whoIsHot = /(what[']*s)\s\b(hot|good|new|popular)\b/,
           location = /\b(in|around|near)\s(the)*\s*(([A-z]+\s*)*)/,
@@ -790,6 +827,11 @@ $(document).ready(function(){
                 api = getApiKey(),
                 url = getRequestUrl("geo.getmetrohype") + "&limit=10&country="+country+"&metro="+city+"&api_key="+api;
             d3.json(url, function(d){
+              if(d.error == 6)
+              {
+                showError(d.message)
+                return;
+              }
               var metro = d.topartists["@attr"].metro,
                   resultArray = d.topartists.artist;
               resetGraph();
@@ -804,13 +846,25 @@ $(document).ready(function(){
     } else {
       var metro = extract[3],
           metroInfo = verifyMetro(metro);
+      if (typeof metroInfo == "object")
+      {
+        var api = getApiKey(),
+            url = getRequestUrl("geo.getmetrohype") + "&limit=10&country="+metroInfo.country+"&metro="+metroInfo.metro+"&api_key="+api
+        d3.json(url, function(d){
+          resetGraph();
+          updateData(d.topartists.artist, "genre", d.topartists["@attr"].metro);
+          initializeGraph(d, data, "artist");
+        })
+      }
       
     }   
   } 
    
   $("#history_form input").keypress(function(e){
+    $(".search_error").hide();
     if(e.which == 13)
     {
+      searchCount = 0;
       e.preventDefault();
       //check search type. influences or influenced?
       var influencedBy = /\b(influenced)\b\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
