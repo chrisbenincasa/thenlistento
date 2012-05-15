@@ -118,25 +118,6 @@
         <h2>You like</h2>
         <input name="name" id="name" type="text" placeholder="The Beatles"/>
         <h2>? Then listen to&hellip;</h2>
-        <div id="adv_search_wrap">
-          <a id="advanced_search" href="#">Advanced Search</a>
-          <div id="adv_search_opts">
-            <div id="other_wrap">
-              <label for="limit">Limit Results: </label>
-              <input type="text" name="limit" id="limit" />
-              <span class="limit_error"></span>
-              <fieldset>
-                <label for="force_search">Limit Search: </label>
-                <input name="active_force_search" id="active_force_checkbox" type="checkbox" />
-                <select disabled="1" name="force_search" id="force_search_select">
-                  <option value="artist">Artists</option>
-                  <option value="track">Tracks</option>
-                  <option value="genre">Genres</option>
-                </select>
-              </fieldset>
-            </div>
-          </div>
-        </div>
       </form>
       <form id="tell_me_form">
              <h2>Tell me</h2>
@@ -151,17 +132,16 @@
       <p>
         <small>Press 'enter' to search.</small>
       </p>
-    </div>
+      <a href="#" class="cloud_toggle">View As Tag Cloud</a>
+      
+    </div>    
   </div>
   <div id="main_container">
     <div class="search_error">
       <h3>Something went wrong with the search. Try again.</h3>
     </div>
     <div class="canvas_container" id="recommend_canvas_container">
-      <!-- <canvas id="viewport" height="700" width="960"></canvas> -->
-      <svg class="graph" height="720" width="960"></svg>
-      <div id="hidden_results"></div>
-      <!-- <a href="#" id="image">for image</a> -->
+
     </div>
     <div class="footer_wrap">
       <div class="footer_links">
@@ -169,23 +149,16 @@
         <a href="./docs" title="Help">Help</a>
         <div class="clearfix"></div>
       </div>
-      <p>Then Listen To<sup><span style="color: teal;">beta</span></sup> is an <a href="https://github.com/chrisbenincasa/thenlistento">open source project</a> written by  <a href="http://chrisbenincasa.com/">Christian Benincasa.</a></p>
-      <p><small>All Rights Reserved. Copyright &copy; 2012</small></p>
+      <div class="copyright">
+        <p>Then Listen To<sup><span style="color: teal;">beta</span></sup> is an <a href="https://github.com/chrisbenincasa/thenlistento">open source project</a> written by  <a href="http://chrisbenincasa.com/">Christian Benincasa.</a></p>
+        <p><small>All Rights Reserved. Copyright &copy; 2012</small></p>
+        <div class="clearfix"></div>
+        
+      </div>
+      <div class="clearfix"></div>
     </div>
   </div>
-  
-<!-- <script type="text/javascript" charset="utf-8">
-  $("#image").click(function(e){
-    e.preventDefault();
-    var canvas = document.getElementById("viewport");
-    var img = canvas.toDataURL("image/png");
-    window.location = img
-  })
 
-</script> -->
-
-<!-- <script src="./arbor/lib/arbor.js" type="text/javascript"></script>
-<script src="./arbor/lib/arbor-tween.js" type="text/javascript" charset="utf-8"></script> -->
 <script src="scripts/d3.v2.min.js" type="text/javascript"></script>
 <script src="scripts/util.js" type="text/javascript" charset="utf-8"></script>
 <script src="scripts/main.js" charset="utf-8" type="text/javascript"></script>
