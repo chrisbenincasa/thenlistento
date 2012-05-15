@@ -1,4 +1,8 @@
 $(document).ready(function(){
+  var svg = d3.select(".canvas_container").append("svg:svg")
+        .attr("class", "graph")
+        .attr("width", 960)
+        .attr("height", 720);
   //Hash search
   if(window.location.hash.length)
   {
@@ -79,8 +83,6 @@ $(document).ready(function(){
   {
     var clicked = (typeof override == "undefined") ? el.attr("rel") : override,
         visible = $("form:visible")
-    //var clicked = el.attr("rel");
-    console.log(clicked)
     if($("form#"+clicked).is(":visible"))
     {
       return
@@ -150,7 +152,6 @@ $(document).ready(function(){
   
   /* Declarations */
   var searchCount = 0,
-      svg = d3.select("svg.graph"),
       force,
       node,
       link,
@@ -210,21 +211,10 @@ $(document).ready(function(){
         //return strengthScale((searchCount+1)*d.target.match)
         })
       .gravity(0.1)
-      .size([960,600])
+      .size([960,700])
       .on("tick", tick);
   }
   
-  function transitionListen()
-  {
-    var trackForce = setInterval(function(){
-      console.log(force.alpha())
-      if(force.alpha() == 0)
-      {
-        clearInterval(trackForce)
-      }
-    }, 500)
-  }
-
   $("#band_search input").keypress(function(e){
     $(".search_error").hide();    
     if(e.which == 13)
@@ -247,7 +237,8 @@ $(document).ready(function(){
     } 
     
     var intRegex = /^\d+$/;
-    var inputLimit = $("input#limit").val();
+    //var inputLimit = $("input#limit").val();
+    var inputLimit = 10;
     if(inputLimit.length > 0 && intRegex.test(inputLimit) == false)
     {
       $(".limit_error").html("Enter a number!").show();
@@ -266,8 +257,8 @@ $(document).ready(function(){
     }
     var toSerialize = $("input#name").val()
     var serial = toSerialize.replace(/\s/g, "+")
-    var limitHash = $("input#limit").val()
-    window.location.hash = (limitHash.length > 0) ? "!/"+serial+"&limit="+limitHash : "!/"+serial
+    //var limitHash = $("input#limit").val()
+    window.location.hash = "!/"+serial
     
     //hide advanced search options if visible upon search
     if($("#adv_search_opts").is(":visible"))
@@ -314,9 +305,9 @@ $(document).ready(function(){
   function searchType(query)
   {
     var expressions = {"trackSearch" : /(([A-z0-9]+)\s*)+\bby\b\s([A-z0-9]+\s*)+/,
-                       "trackOnlySearch": /\b(track|song)\b:\s*([A-z0-9]+\s*)+/,
-                       "genreSearch": /\b(genre|mood|tag)\b:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
-                       "artistSearch": /\b(artist|band)\b:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
+                       "trackOnlySearch": /\[*\b(track|song)\b\]*:\s*([A-z0-9]+\s*)+/,
+                       "genreSearch": /\[*\b(genre|mood|tag)\b\]*:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
+                       "artistSearch": /\[*\b(artist|band)\b\]*:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
                        "whoHotBase": /(what[']*s)\s\b(hot|good|new|popular)\b/
                       }
                       
@@ -942,4 +933,37 @@ $(document).ready(function(){
     })
   }
     
+  var currentView = "graph"
+  $(".cloud_toggle").click(function(e){
+    e.preventDefault();
+    //if script isn't loaded
+    if(d3.layout.cloud instanceof Object === false)
+    {
+      $.getScript("./scripts/d3.layout.cloud.js", function(d){
+        showTagCloud();
+      }).fail(function(xhr, s, c){
+        console.log(s,c)
+      })
+    } else {
+      showTagCloud();
+    }
+    
+    function showTagCloud()
+    {
+      $("svg.graph").fadeToggle();
+      if($("svg.cloud").length == 0)
+      {
+        console.log("search")
+        var artist = $("form input").filter(":visible").val().replace(/\s/g, "+"),
+            api = getApiKey(),
+            url = getRequestUrl("artist.getsimilar") + "&limit=150&artist="+artist+"&format=json&api_key="+api
+        d3.json(url, function(d){
+          
+        })
+      }
+      
+      $("svg.cloud").fadeIn();
+      
+    }
+  })
 });
