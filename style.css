@@ -168,7 +168,7 @@ select
 .canvas_container
 {
   width: 1024px;
-  height: 700px;
+  height: 720px;
   margin: 0 auto 10px;
 }
 
@@ -295,6 +295,11 @@ input:focus
 .footer_links
 {
   float: right;
+}
+
+.copyright
+{
+  float: left;
 }
 
 .footer_links a
