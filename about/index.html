@@ -13,12 +13,18 @@
 <body>
   <div id="about_page_wrap">
    <div id="about_page_inner">
+     <div class="right help_nav">
+        <a href="../">Home</a>
+        <a href="#">About</a>
+        <a href="../docs">Help</a>
+        <div class="clearfix"></div>
+      </div>
       <h1>Welcome to Then Listen To<sup style="color: teal;">beta</sup></h1>
       <section id="about_overview" class="about_section">
         <h3 class="about_section_header">Overview</h3>
         <p>Finding new music can be a drag. Then Listen To is here to help.</p>
         <p>Enter an artist or song name, genre, or mood into the box and hit enter and Then Listen To will generate a pretty graph of results. The bigger the circle, the better the match!</p>
-        <p>Click and hold a circle for a second to expand the graph with even more results; it's that simple!</p>
+        <p>Click and hold a circle to expand the graph with even more results; it's that simple!</p>
         <p>Even share searches with your friends! Then Listen To generates sharable links that direct a user right back to their search!</p>
         <p>But there's more! Check out the <a href="../help/" class="help_link">help section</a> for a full list of commands!</p>
       </section>
@@ -26,9 +32,9 @@
         <h3 class="about_section_header">Technical</h3>
         <p>So how does Then Listen To <em>work?</em></p>
         <p>Then Listen To takes advantage of a some great HTML5 features and Javascript libraries to produce the graphs you see.</p>
-        <p>The HTML5 Canvas element feature is used for dynamic graph drawing. The graph drawing itself is achieved by using the Javascript library <a href="http://www.arborjs.org">arbor.js</a> along with jQuery. The system makes asynchronous calls to the Last.fm and EchoNest databases to produce accurate results for artist, track, and genre recommendations.</p>
+        <p>The <a href="http://d3js.org/">d3</a> Javascript library is used to generate SVG (Scalable Vector Graphics) and is the powerhouse behind the visualization system. The system makes asynchronous calls to the Last.fm and EchoNest databases to produce accurate results for recommendations and other data.</p>
         <p>Then Listen To uses carefully designed regular expressions to recognize English syntax. These expressions are constantly being stress-tested to ensure that the user is delivered the search experience they expect.</p>
-        <p>Then Listen To is open-source and hosted on GitHub. Check out the source <a href="https://www.github.com/chrisbenincasa/thenlistento">here</a>!
+        <p>Then Listen To is open-source and hosted on GitHub. Check out the source code <a href="https://www.github.com/chrisbenincasa/thenlistento">here</a>!
       </section>
       <div class="about_footer_wrap">
         <div class="footer_links">

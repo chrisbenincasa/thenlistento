@@ -5,17 +5,29 @@ $(document).ready(function(){
   }
 
   $(".docs_link").click(function(e){
-    $(".help_content").html("")
-    var fragment = this.hash
-    loadContent(fragment)
-    //$(".help_content").load("./"+$(this).attr("rel")+".html")
+    var hash = this.hash
+    $(".help_page_content").animate({height: 0}, 400, function(){
+      $(".help_page_content").html("")
+      loadContent(hash)
+    })
   });
   
   function loadContent(fragment)
   {
     fragment = fragment.slice(1).replace(/!\//g, "");
     $(".help_page_content").load("./"+fragment+".html", function(){
-      $(".help_page_content").animate({height: $("#ajax_page_wrap").height()}, 500);
+      var height = $("#ajax_page_wrap").outerHeight();
+      $(".help_page_content").animate({height: height}, 400)
     });
   }
+  
+  $(".country_header").click(function(e){
+    $(this).siblings("div").slideToggle(250);
+  });
+  
+  $(".country_list li div ul li").click(function(e){
+    var query = this.innerHTML.replace(/\s/g, "+")
+    window.location = "http://www.thenlistento.com/#!/hot/"+query
+  });
+  
 });
