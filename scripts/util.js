@@ -78,18 +78,18 @@ function verifyMetro(query)
     dataType: "json",
     success: function(result)
     {
-      query = toTitleCase(query)
-      var metros = result.metros.metro
+      query = toTitleCase(query).replace(/\./g, "")
+      var metros = result.metros.metro,
+          queryPattern = new RegExp(query, "i")
       for(key in metros)
       {
-        if(query === metros[key].name)
+        if(queryPattern.test(metros[key].name))
         {
           match = {"country": metros[key].country,
                     "metro"  : metros[key].name}
         }
         else if(query === metros[key].country)
         {
-          console.log("country!")
           match = true;
         }
       }
