@@ -57,45 +57,70 @@
     <div id="help_inner">
       <h3>Need some help with searches?</h3>
       <ul class="help_tabs">
-        <li class="help_tab active"><a class="artists_help_link" href="#">Artists</a></li>
-        <li class="help_tab"><a class="tracks_help_link" href="#">Tracks</a></li>
-        <li class="help_tab"><a class="genres_help_link" href="#">Genres</a></li>
-        <li class="help_tab"><a class="more_help_link" href="#">Additional Features</a></li>
+        <li class="help_tab active"><a rel="artists_help" href="#">Artists</a></li>
+        <li class="help_tab"><a rel="tracks_help" href="#">Tracks</a></li>
+        <li class="help_tab"><a rel="genres_help" href="#">Genres</a></li>
+        <li class="help_tab"><a rel="whats_hot_help" href="#">What's Hot</a></li>
+        <li class="help_tab"><a rel="influence_help" href="#">Influences</a></li>
+        <li class="help_tab"><a rel="more_help" href="#">Additional Features</a></li>
       </ul>
       <div class="help_content">
         <div class="artists_help_content active">
-          <p>Artist search is at the center of Then Listen To. This means that a simple search without any additional parameters will be interpreted as an artist search before any other options are explored by the system</p>
-          <p>So to search for an artist, simply type the artist's and hit enter. </p>
+          <p>Artist searches are Then Listen To's specialty! It's as simple as typing in an artist's name and pressing enter!</p>
           <h4>Click an example to try it out!</h4>
           <ul>
-            <li><a class="example" href="#"><strong>Radiohead</strong></a></li>
-            <li><a class="example" href="#"><strong>Led Zeppelin</strong></a></li>
-            <li><a class="example" href="#"><strong>Miles Davis</strong></a></li>
+            <li><a class="example" rel="discover" href="#"><strong>Radiohead</strong></a></li>
+            <li><a class="example" rel="discover" href="#"><strong>Led Zeppelin</strong></a></li>
+            <li><a class="example" rel="discover" href="#"><strong>Miles Davis</strong></a></li>
           </ul>
         </div>
         <div class="tracks_help_content">
-          <p>You can even get track recommendations! Search for a track by entering "<strong><u>{track name}</u></strong> by <strong><u>{artist name}</u></strong>", without quotes. Then Listen To will know you want a track and not an artist or genre. You can also flag your search with "track: " or "song: " if you don't remember the artist's name!</p>
+          <p>You can even get track recommendations! Search for a track by entering "<strong><u>{track name}</u></strong> by <strong><u>{artist name}</u></strong>", without quotes. Then Listen To will know you want a track and not an artist or genre. You can also flag your search with "<strong>track:</strong>" or "<strong>song:</strong>" if you don't remember the artist's name!</p>
           <h4>Click an example to try it out!</h4>
             <ul>
-              <li><a class="example" href="#"><strong>15 Step</strong> by <strong>Radiohead</strong></a></li>
-              <li><a class="example" href="#"><strong>track: Stairway to Heaven</strong></a></li>
-              <li><a class="example" href="#"><strong>song: I Want To Hold Your Hand</strong></a></li>
+              <li><a class="example" rel="discover" href="#"><strong>15 Step</strong> by <strong>Radiohead</strong></a></li>
+              <li><a class="example" rel="discover" href="#"><strong>track: Stairway to Heaven</strong></a></li>
+              <li><a class="example" rel="discover" href="#"><strong>song: I Want To Hold Your Hand</strong></a></li>
             </ul>
           <p>Then Listen To will always assume a search is an artist name first. To force a track name search, flag it or utilize the advanced search options.</p>
         </div>
         <div class="genres_help_content">
-          <p>Searching artists and tracks is specific. If you wish to get generalized recommendations on a genre, mood, or tag, you're in luck! Then Listen To provides means to recommend artists based on these characteristics. In order to do so, first flag your search with "genre: ", "mood: ", or "tag: ".</p>
+          <p>Searching artists and tracks is specific. If you wish to get generalized recommendations on a genre, mood, or tag, you're in luck! Then Listen To provides means to recommend artists based on these characteristics. In order to do so, first flag your search with "<strong>genre:</strong>", "<strong>mood:</strong>", or "<strong>tag:</strong>".</p>
           <h4>Click an example to try it out!</h4>
           <ul>
-            <li><a class="example" href="#"><strong>genre: </strong>rock</a></li>
-            <li><a class="example" href="#"><strong>mood: </strong>happy</a></li>
-            <li><a class="example" href="#"><strong>tag: </strong>loud</a></li>
+            <li><a class="example" rel="discover" href="#"><strong>genre: </strong>rock</a></li>
+            <li><a class="example" rel="discover" href="#"><strong>mood: </strong>happy</a></li>
+            <li><a class="example" rel="discover" href="#"><strong>tag: </strong>loud</a></li>
           </ul>
           <p>Don't forget the colon after your chosen flag!</p>
         </div>
+        <div class="whats_hot_help_content">
+          <p>For general recommendations of up-and-coming artists, use the What's Hot Search feature. Click on "What's Hot" link on the home page to perform a What's Hot search.</p>
+          <p>But there's more! Then Listen To can tell you what's trending in different cities of the world. A location search can be performed by typing <span style="color: teal">"What's hot near <strong><u>{city name}</u></strong>"</span>.</p>
+          <p>If your browser <a href="http://www.browsergeolocation.com/#browser-gelocation-support"><u>supports geolocation</u></a> then geolocation searches can be performed! Instead of entering a city name to search, enter 'here' or 'me'. <a href="../docs/#!/whats_hot"><u>Read more about location searches</u></a>.</p>
+          <h4>Click an example to try it out!</h4>
+          <ul>
+            <li><a class="example" rel="hot" href="http://www.thenlistento.com/#!/hot/"><strong>What's Hot</strong></a></li>
+        
+            <li><a class="example" rel="hot" href="http://www.thenlistento.com/#!/hot/new+york"><strong>What's Hot in New York</strong></a></li>
+            <li><a class="example" rel="hot" href="http://www.thenlistento.com/#!/hot/here"><strong>What's Trending near me</strong></a></li>
+          </ul>
+        </div>
+        <div class="influence_help_content">
+          <p>Then Listen To can help you learn about your favorite band's roots! In order to perform an influence search, click the "History" link on the home page.</p>
+          <p>Find artist influences with searches like: <span style="color: teal">"influenced <strong><u>{artist name}</u></strong>"</span>.</p>
+            <p>Why not look at more recent times to see who an artist influenced? This is also possible with Who Influenced Searches.</p>
+            <p>Who Influenced Searches generally take the form: <span style="color: teal">"did <strong><u>{artist name}</u></strong> influence"</span>.</p>
+            <h4>Click an example to try it out!</h4> 
+            <ul>
+              <li>Who <a class="example" rel="history" href="http://www.thenlistento.com/history/john+coltrane"><strong>Influenced John Coltrane</strong></a>?</li>
+              <li>Who <a class="example" rel="history" href="http://www.thenlistento.com/history/john+coltrane?mode=2"><strong>did John Coltrane influence</strong></a>?</li>
+            </ul>
+        </div>
         <div class="more_help_content">
-          <p>Then Listen To makes it easy to expand your graphs. If you see an artist in a graph that you want recommendations for, simply click and hold that artist's circle for a second. A new search is appended to your existing graph with 10 new recommendations!</p>
-          <p>Advanced search functions add even more functionality by letting you limit the amount of results for a search, as well force different kinds of searches. Forcing a search type is useful if Then Listen To is having trouble understanding your query.</p>
+          <p>Then Listen To makes it easy to expand your graphs. If you see an artist in a graph that you want recommendations for, simply click that artist's circle. A new search is appended to your existing graph with 10 new recommendations!</p>
+          <p>Hovering over an artist's node will reveal all of its direct links and temporarily fade out all unrelated nodes. This is useful when viewing complex graphs with many nodes (generally after 4 or more searches on the same graph).</p>
+          <p>Read the full help section <a href="./docs/">here</a>.</p>
         </div>
       </div>
     </div>
@@ -122,7 +147,7 @@
       <form id="tell_me_form">
              <h2>Tell me</h2>
              <input id="tell_name" type="text" placeholder="what's hot" />
-             <h2>&hellip;</h2>
+             <h2>!</h2>
       </form>
       <form id="history_form">
         <h2>Who</h2>
@@ -132,13 +157,18 @@
       <p>
         <small>Press 'enter' to search.</small>
       </p>
-      <a href="#" class="cloud_toggle">View As Tag Cloud</a>
-      
+      <!--<a href="#" class="cloud_toggle">View As Tag Cloud</a> -->
+      <div class="share_box">
+        <a class="share_button facebook_button" target="_blank" href="http://www.facebook.com/sharer.php?u=">Facebook</a>
+        <a class="share_button tweet_button" target="_blank" href="https://twitter.com/share?url=https%3A%2F%2Fdev.twitter.com%2Fpages%2Ftweet-button">Tweet</a>
+        <input class="search_permalink" type="text" value="test" />
+        <div class="clearfix"></div>
+      </div>
     </div>    
   </div>
   <div id="main_container">
     <div class="search_error">
-      <h3>Something went wrong with the search. Try again.</h3>
+      <small>Something went wrong with the search. Try again.</small>
     </div>
     <div class="canvas_container" id="recommend_canvas_container">
 
