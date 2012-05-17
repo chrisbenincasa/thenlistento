@@ -124,7 +124,7 @@ select
   text-decoration: none;
 }
 
-.tracks_help_content, .genres_help_content, .more_help_content
+.tracks_help_content, .genres_help_content, .more_help_content, .whats_hot_help_content, .influence_help_content
 {
   display: none;
 }
@@ -208,7 +208,7 @@ input[type="text"]
   border: 1px solid lightgray;
   color: teal;
   background-color: #fcfcfc;
-  width: 300px;
+  width: 360px;
 }
 
 input:focus
@@ -359,6 +359,11 @@ h3.about_section_header, h3.help_section_header
   font-size: 11pt;
 }
 
+.help_nav a 
+{
+  margin-right: 5px;
+}
+
 #help_page_header
 {
   margin-bottom: 15px;
@@ -404,4 +409,74 @@ circle
 line.dashed
 {
   stroke-dasharray: 9, 5;
+}
+
+/* Metros */
+.country_list li
+{
+  margin-bottom: 5px;
+}
+
+.country_list li div ul
+{
+  margin-left: 20px;
+}
+
+.country_list li div ul li
+{
+  margin-bottom: 0;
+  list-style: disc;
+}
+
+.country_list li div ul li:hover
+{
+  cursor: pointer;
+  color: teal;
+}
+
+.country_list li div
+{
+  display: none;
+}
+
+.country_header
+{
+  font-size: 14pt;
+  border-bottom: thin solid lightgray;
+}
+
+.country_header:hover
+{
+  color: teal;
+  cursor: pointer;
+}
+
+.share_box
+{
+  width: 400px;
+  margin: 0 auto;
+}
+
+.share_button
+{
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  margin-right: 5px;
+  text-indent: -9999px;
+}
+
+.search_permalink
+{
+  font-size: 12pt !important;
+}
+
+.tweet_button
+{
+  background-image: url(./images/twitter.png);
+}
+
+.facebook_button
+{
+  background-image: url(./images/facebook.png);
 }
