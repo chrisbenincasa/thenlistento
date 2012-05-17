@@ -8,33 +8,42 @@ $(document).ready(function(){
   {
     var hash = window.location.hash;
     hash = hash.split("/");
-    var query = hash[1].split("&");
-    if(hash.length > 2)
+    var hashSearchType = hash[1]
+    if(hashSearchType === "discover")
     {
-      if(query[0] === "history")
-      {
-        switchSearch(null, "history_form")
-        $("input#history_name").val("influenced " + hash[2].replace(/[+]/g, " "))
-        getBeginYear(hash[2], 1)
-      }
-      else if(query[0] === "hot")
+      $("input#name").val(toTitleCase(hash[2].replace(/[+]/g, " ")));
+      search();
+    }
+    else if(hashSearchType === "hot")
+    {
+      if(typeof hash[2] !== "undefined" && hash[2].length > 0)
       {
         switchSearch(null, "tell_me_form")
-        $("input#tell_name").val("what's hot in "+hash[2].replace(/[+]/g, " "))
+        var hashLocation = /\b(in|around|near)\s(the)*\s*(([A-z]+\s*)*)/
+        $("input#tell_name").val("What's Hot near "+toTitleCase(hash[2].replace(/[+]/g, " ")));
+        var hashExtract = $("input#tell_name").val().match(hashLocation)
+        locationSearch($("input#tell_name").val(), hashExtract)
+      } else {
+        switchSearch(null, "tell_me_form");
+        $("input#tell_name").val("What's Hot");
         hotSearch($("input#tell_name").val())
       }
-    } else {  
-      if(query.length === 2)
+    }
+    else if(hashSearchType === "history")
+    {
+      switchSearch(null, "history_form")
+      var historyType = hash[2].split("?")
+      if(typeof historyType[1] === "undefined" || historyType[1].split("=")[1] === "1")
       {
-        var param = query[1].split("=");
-        if(param[0] === "limit")
-        {
-          $("input#limit").val(param[1]);
-        }
+        $("input#history_name").val("influenced " + toTitleCase(historyType[0].replace(/[+]/g, " ")))
+        getBeginYear(historyType[0], 1)
+      } else
+      {
+        $("input#history_name").val("did "+toTitleCase(historyType[0].replace(/[+]/g, " "))+" influence")
+        getBeginYear(historyType[0], 2)
       }
-      var urlSearch = query[0].replace(/[+]/g, " ");
-      $("input#name").val(urlSearch);
-      search();
+    } else {
+      console.log("A redirect error occured.");
     }
   }
   
@@ -104,35 +113,34 @@ $(document).ready(function(){
       link.parent().addClass("active");
       $(".help_content").children(".active").hide(0, function(){
         $(this).removeClass("active");
-        if(link.hasClass(tabs[0]))
-        {
-          $(".artists_help_content").show(0, function(){
-            $(this).addClass("active");
-          });
-        }
-        else if(link.hasClass(tabs[1]))
-        {
-          $(".tracks_help_content").show(0, function(){
-            $(this).addClass("active");
-          });
-        } else if(link.hasClass(tabs[2])) {
-          $(".genres_help_content").show(0, function(){
-            $(this).addClass("active");
-          });
-        } else {
-          $(".more_help_content").show(0, function(){
-            $(this).addClass("active");
-          });
-        }
+        $("."+link.attr("rel")+"_content").show(0, function(){
+          $(this).addClass("active");
+        });
       });
     }  
   });
   
   $(".help_content a.example").click(function(e){
     e.preventDefault();
-    $("input#name").val(stripTags($(this).html(), "strong"));
     $("#help").slideToggle(400, "easeOutCubic");
-    search();
+    if($(this).attr("rel") === "discover")
+    {
+      switchSearch(null, "band_search")
+      $("input#name").val(stripTags($(this).html(), "strong"));
+      search();
+    }
+    else if($(this).attr("rel") === "hot")
+    {
+      switchSearch(null, "tell_me_form");
+      $("input#tell_name").val(stripTags($(this).html(), "strong"))
+      hotSearch($("input#tell_name").val())
+    }
+    else if($(this).attr("rel") === "history")
+    {
+      switchSearch(null, "history_form");
+      $("input#history_name").val(stripTags($(this).html(), "strong"));
+      influenceSearchType();
+    }
   });
   
   function changePlaceholder()
@@ -258,7 +266,7 @@ $(document).ready(function(){
     var toSerialize = $("input#name").val()
     var serial = toSerialize.replace(/\s/g, "+")
     //var limitHash = $("input#limit").val()
-    window.location.hash = "!/"+serial
+    window.location.hash = "!/discover/"+serial
     
     //hide advanced search options if visible upon search
     if($("#adv_search_opts").is(":visible"))
@@ -284,10 +292,10 @@ $(document).ready(function(){
       switch(searchType(searchQuery))
       {
         case 0:
-          trackSearchFunc(inputLimit, false, null);
+          trackSearchFunc(inputLimit, null);
           break;
         case 1:
-          trackSearchFunc(inputLimit, true, null);
+          trackOnlySearchFunc(inputLimit, null);
           break;
         case 2:
           genreSearchFunc(inputLimit);
@@ -300,14 +308,15 @@ $(document).ready(function(){
           break;
       } 
     }
+    updateShareButtons();
   }
   
   function searchType(query)
   {
     var expressions = {"trackSearch" : /(([A-z0-9]+)\s*)+\bby\b\s([A-z0-9]+\s*)+/,
-                       "trackOnlySearch": /\[*\b(track|song)\b\]*:\s*([A-z0-9]+\s*)+/,
-                       "genreSearch": /\[*\b(genre|mood|tag)\b\]*:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
-                       "artistSearch": /\[*\b(artist|band)\b\]*:\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
+                       "trackOnlySearch": /\[*\b(track|song)\b\]*:\s*([A-z0-9]+\s*)+/i,
+                       "genreSearch": /\[*\b(genre|mood|tag)\b\]*:\s*[A-z0-9]+(\s[A-z0-9&]*)*/i,
+                       "artistSearch": /\[*\b(artist|band)\b\]*:\s*[A-z0-9]+(\s[A-z0-9&]*)*/i,
                        "whoHotBase": /(what[']*s)\s\b(hot|good|new|popular)\b/
                       }
                       
@@ -355,7 +364,7 @@ $(document).ready(function(){
     d3.json(requestURL, function(d){
       if(typeof d.error != "undefined" || typeof d.similarartists.artist != "object")
       {
-        showError();
+        showError("The artist you searched could not be found.");
         $("input#name").focus();
       }
       var artists = d.similarartists.artist      
@@ -364,42 +373,79 @@ $(document).ready(function(){
     });
   }
   
-  function trackSearchFunc(inputLimit, trackOnly, extraInfo)
+  function trackOnlySearchFunc(inputLimit, extraInfo)
   {
-    searchCount = 0;
-    if(!trackOnly)
-    {
-      if(extraInfo === null)
-      {
-        var info = $("input#name").val().split(" by ")
-        for(var i = 0; i < info.length; i++)
-        {
-          info[i] = toTitleCase(info[i])
-        }
-        var track = info[0].replace(/\s/g, "+"),
-            artist = info[1].replace(/\s/g, "+")
-      } else {
-        var track = extraInfo["track"],
-            artist = extraInfo["artist"]
-      }
-      
-      var api = getApiKey(),
-        getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&autocorrect=1&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
+    var api = getApiKey(),
+        info = $("input#name").val().split(":"),
+        track = info[1].replace(/\s/g, "+")
+        getUrl = getRequestUrl("track.search") + "&limit=1&format=json&track="+track+"&api_key="+api
     
-      resetGraph()
-      
-      d3.json(getUrl, function(d){
-        if(typeof d.error != "undefined")
-        {
-          showError();
-        } else {
-          var similarTracks = d.similartracks.track
-          var searchedArray = d.similartracks["@attr"]
+    d3.json(getUrl, function(d){
+      if(typeof d.error != "undefined")
+      {
+        showError("The song you searched couldn not be found.");
+      } else {
+        var returnedArtist = d.results.trackmatches.track.artist
+        getUrl = getRequestUrl("track.getsimilar")+"&artist="+returnedArtist.replace(/\s/g,"+")+"&track="+track+"&limit="+inputLimit+"&format=json&api_key="+api
+        d3.json(getUrl, function(e){
+          if(typeof e.error != "undefined")
+          {
+            showError();
+          }
+          resetGraph();
+          var similarTracks = e.similartracks.track,
+              searchedArray = e.similartracks["@attr"];
           updateData(similarTracks, "track", searchedArray)
-          initializeGraph(d, data, "track")
-        }
-      })
+          initializeGraph(e, data, "track");
+        })
+      }
+    })
+  }
+  
+  function updateShareButtons()
+  {
+    var twitterUrl = "https://twitter.com/share?url=",
+        link = encodeURIComponent("http://www.google.com"),
+        text = encodeURIComponent("Share"),
+        facebookUrl = "http://www.facebook.com/sharer.php?u="
+    $(".tweet_button").attr("href", twitterUrl + link + "&text=" + text)
+    $(".facebook_button").attr("href", facebookUrl + link + "&t=" + text)
+    $(".search_permalink").val(window.location.href)
+  }
+  
+  function trackSearchFunc(inputLimit, extraInfo)
+  {
+    var api = getApiKey();
+    searchCount = 0;
+    if(extraInfo === null)
+    {
+      var info = $("input#name").val().split(" by ")
+      for(var i = 0; i < info.length; i++)
+      {
+        info[i] = toTitleCase(info[i])
+      }
+      var track = info[0].replace(/\s/g, "+"),
+          artist = info[1].replace(/\s/g, "+")
+    } else {
+      var track = extraInfo["track"],
+          artist = extraInfo["artist"]
     }
+
+    var getUrl = getRequestUrl("track.getsimilar") + "&artist="+artist+"&autocorrect=1&track="+track+"&api_key="+api+"&limit="+inputLimit+"&format=json"
+  
+    
+    d3.json(getUrl, function(d){
+      if(typeof d.error != "undefined")
+      {
+        showError();
+      } else {
+        resetGraph();
+        var similarTracks = d.similartracks.track,
+            searchedArray = d.similartracks["@attr"]
+        updateData(similarTracks, "track", searchedArray)
+        initializeGraph(d, data, "track")
+      }
+    })
   }
   
   function genreSearchFunc(inputLimit)
@@ -561,45 +607,7 @@ $(document).ready(function(){
   });
   
   $(document).on("mouseover", "circle", function(e){
-       n = e.target.__data__;
-       /*var radius = 1.33*Math.sqrt(n.match)
-       var hoverName = svg.select("g.names").append("text")
-        .style("text-anchor", "middle")
-        .attr("x", n.x)
-        .attr("y", n.y + (radius + 17))
-        .attr("class", n.id + " name")
-        .text(n.name)
-        .style("font-size", "0px")      
-        
-        hoverName.transition().style("font-size", "14px")
-      if(typeof n.artist != "undefined")
-      {
-        var hoverArtist = svg.select("g.names").append("text")
-          .style("text-anchor", "middle")
-          .attr("x", n.x)
-          .attr("y", n.y - (radius + 7))
-          .attr("class", n.id + " name")
-          .text(n.artist)
-          .style("font-size", "0px")
-          .transition().style("font-size", "14px")
-      }*/
-      var xPos = ~~(n.x),
-          yPos = ~~(n.y)
-      /*node.each(function(d,i){
-        var diffX = xPos - ~~(d.x),
-            diffY = yPos - ~~(d.y)
-            hypo = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2))
-        if(hypo < 150)
-        {
-          if(n.index !== d.index)
-          {
-            $("circle:not(."+n.id+")").css("opacity", "0.5")
-            //svg.selectAll("."+d.id).classed("faded", true).transition().style("opacity", "0.5");
-            svg.selectAll("line."+n.id).classed("connected", true).transition().style("stroke", "red");
-          }
-        }
-      })*/
-      
+      n = e.target.__data__;
       d3.select("circle."+n.id).classed("linked_node", true)
       link.each(function(d,i){
         if(d.target.index === n.index || d.source.index === n.index)
@@ -691,14 +699,10 @@ $(document).ready(function(){
      .attr("r", 0)
      .style("fill", function(){return "#"+Math.floor(Math.random()*16777215).toString(16);})
      .call(force.drag)
-     
-     //node.append("title").text(function(d){return d.name})
        
      names = svg.select("g.names").selectAll("text.name")
         .data(data["nodes"])
-     
-     //names.exit().remove()
-     
+          
      names.enter().append("text")
         .attr("class", function(d){return "name "+d.id})
         .style("font-size", "0px")
@@ -709,9 +713,7 @@ $(document).ready(function(){
 
      force.nodes(data["nodes"]).links(data["links"])
        .start()
-       .charge(-400)
-       .alpha(0.4)
-       .friction(0.65);
+       .charge(-400);
 
      node.transition()
        .duration(150)
@@ -724,11 +726,10 @@ $(document).ready(function(){
         .style("font-size", "14px");
     
     var k = Math.sqrt(node[0].length / (960*600))
-    force.gravity(100 * k).charge(function(d){
-      console.log(strengthScale(d.match))
-      return strengthScale(d.match) * (-15/k)*Math.sqrt(searchCount)
-    })
-    console.log(force.gravity(), force.charge())
+    force.gravity(100 * k)
+      .charge(function(d){ return strengthScale(d.match) * (-15/k)*Math.sqrt(searchCount)})
+      .alpha(0.4)
+      .friction(0.65)
     fixTransitions();
     node.on("dblclick", function(n){window.location = "http://"+n.url})
     rootIter++
@@ -779,8 +780,8 @@ $(document).ready(function(){
     {
       searchCount = 0;
       e.preventDefault();
-      var whoIsHot = /(what[']*s)\s\b(hot|good|new|popular)\b/,
-          location = /\b(in|around|near)\s(the)*\s*(([A-z]+\s*)*)/,
+      var whoIsHot = /(what[']*s)\s\b(hot|good|new|popular|trending)\b/i,
+          location = /\b(in|around|near)\s(the)*\s*(([A-z.,+]+\s*)*)/i,
           query = $("input#tell_name").val()
 
       if(whoIsHot.test(query))
@@ -788,7 +789,6 @@ $(document).ready(function(){
         if(location.test(query))
         {
           var extract = query.match(location)
-          console.log(extract)
           locationSearch(query, extract)
         } else {
           hotSearch(toTitleCase(query))
@@ -807,13 +807,14 @@ $(document).ready(function(){
       resetGraph();
       var resultArray = d.artists.artist;
       updateData(resultArray, "hot", query)
+      window.location.hash = "!/hot/"
       initializeGraph(d, data, "artist")
     })
   }
   
   function locationSearch(query, extract)
   {
-    var isGeolocation = /\b(me|here)\b/
+    var isGeolocation = /\b(me|here)\b/i
     if(isGeolocation.test(query))
     {
       if(navigator.geolocation)
@@ -848,16 +849,29 @@ $(document).ready(function(){
     } else {
       var metro = extract[3],
           metroInfo = verifyMetro(metro);
-      if (typeof metroInfo == "object")
+      if (typeof metroInfo == "object" && metroInfo !== null)
       {
         var api = getApiKey(),
             url = getRequestUrl("geo.getmetrohype") + "&limit=10&country="+metroInfo.country+"&metro="+metroInfo.metro+"&api_key="+api
         d3.json(url, function(d){
-          resetGraph();
-          updateData(d.topartists.artist, "genre", d.topartists["@attr"].metro);
-          window.location.hash = "!/hot/"+d.topartists["@attr"].metro
-          initializeGraph(d, data, "artist");
+          if(typeof d.error != "undefined")
+          {
+            showError()
+          }
+          else if(typeof d.topartists.total != "undefined" && d.topartists.total === "0") 
+          {
+            showError("No data for "+metro+" at this time.")
+          } else {
+            resetGraph();
+            updateData(d.topartists.artist, "genre", d.topartists["@attr"].metro);
+            window.location.hash = "!/hot/"+d.topartists["@attr"].metro
+            initializeGraph(d, data, "artist");
+          }
         })
+      }
+      else if(metroInfo == null)
+      {
+        showError();
       }
       
     }   
@@ -870,24 +884,29 @@ $(document).ready(function(){
       searchCount = 0;
       e.preventDefault();
       //check search type. influences or influenced?
-      var influencedBy = /\b(influenced)\b\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
-          didInfluence = /\b(did)\b\s+([A-z0-9]*)(\s[A-z0-9]*)*\b(influence[?]*)\b/,
-          input = $("input#history_name").val(),
-          serialInput = input.replace(/\s/, "+");
-          
-      if(influencedBy.test(input))
-      {
-        var artist = serialInput.split("+")[1]
-        getBeginYear(artist, 1);
-      } else if(didInfluence.test(input)) {
-        var artist = serialInput.split("+")[1].replace(/\s*\b(influence[?]*)\b/, "")
-        getBeginYear(artist, 2)
-      } else {
-        var artist = input;
-        getBeginYear(artist, 1)
-      }
+      influenceSearchType();
     }
   });
+  
+  function influenceSearchType()
+  {
+    var influencedBy = /\b(influenced)\b\s*[A-z0-9]+(\s[A-z0-9&]*)*/,
+        didInfluence = /\b(did)\b\s+([A-z0-9]*)(\s[A-z0-9]*)*\b(influence[?]*)\b/,
+        input = $("input#history_name").val(),
+        serialInput = input.replace(/\s/, "+");
+        
+    if(influencedBy.test(input))
+    {
+      var artist = serialInput.split("+")[1]
+      getBeginYear(artist, 1);
+    } else if(didInfluence.test(input)) {
+      var artist = serialInput.split("+")[1].replace(/\s*\b(influence[?]*)\b/, "")
+      getBeginYear(artist, 2)
+    } else {
+      var artist = input;
+      getBeginYear(artist, 1)
+    }
+  }
   
   function getBeginYear(artist, mode)
   {
