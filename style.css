@@ -211,6 +211,11 @@ input[type="text"]
   width: 360px;
 }
 
+input:-moz-placeholder
+{
+  color: #aaa;
+}
+
 input:focus
 {
   outline: 2px solid #80C0C0;
@@ -322,7 +327,7 @@ input:focus
 
 /* Tell Me Styles */
 
-#tell_me_form, #history_form
+#hot, #history
 {
   display: none;
 }

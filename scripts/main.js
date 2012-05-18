@@ -3,162 +3,7 @@ $(document).ready(function(){
         .attr("class", "graph")
         .attr("width", 960)
         .attr("height", 720);
-  //Hash search
-  if(window.location.hash.length)
-  {
-    var hash = window.location.hash;
-    hash = hash.split("/");
-    var hashSearchType = hash[1]
-    if(hashSearchType === "discover")
-    {
-      $("input#name").val(toTitleCase(hash[2].replace(/[+]/g, " ")));
-      search();
-    }
-    else if(hashSearchType === "hot")
-    {
-      if(typeof hash[2] !== "undefined" && hash[2].length > 0)
-      {
-        switchSearch(null, "tell_me_form")
-        var hashLocation = /\b(in|around|near)\s(the)*\s*(([A-z]+\s*)*)/
-        $("input#tell_name").val("What's Hot near "+toTitleCase(hash[2].replace(/[+]/g, " ")));
-        var hashExtract = $("input#tell_name").val().match(hashLocation)
-        locationSearch($("input#tell_name").val(), hashExtract)
-      } else {
-        switchSearch(null, "tell_me_form");
-        $("input#tell_name").val("What's Hot");
-        hotSearch($("input#tell_name").val())
-      }
-    }
-    else if(hashSearchType === "history")
-    {
-      switchSearch(null, "history_form")
-      var historyType = hash[2].split("?")
-      if(typeof historyType[1] === "undefined" || historyType[1].split("=")[1] === "1")
-      {
-        $("input#history_name").val("influenced " + toTitleCase(historyType[0].replace(/[+]/g, " ")))
-        getBeginYear(historyType[0], 1)
-      } else
-      {
-        $("input#history_name").val("did "+toTitleCase(historyType[0].replace(/[+]/g, " "))+" influence")
-        getBeginYear(historyType[0], 2)
-      }
-    } else {
-      console.log("A redirect error occured.");
-    }
-  }
-  
-  //Handlers
-  $("#advanced_search").click(function(){
-    $("#adv_search_opts").slideToggle(400, "easeOutCubic");
-  });
-  
-  $(".about_link").click(function(e){
-    //$("#black_overlay").fadeIn();
-    if($("#help").is(":visible"))
-    {
-      $("#help").slideUp(400, "easeOutCubic", function(){
-        $("#about").slideToggle(400, "easeOutCubic");
-      });
-    } else{
-      $("#about").slideToggle(400, "easeOutCubic");
-    }
-  });
-  
-  $(".help_link").click(function(e){
-    if($("#about").is(":visible"))
-    {
-      $("#about").slideUp(400, "easeOutCubic", function(){
-        $("#help").slideToggle(400, "easeOutCubic");
-      });
-    } else{
-      $("#help").slideToggle(400, "easeOutCubic");
-    }
-  });
-  
-  $("#active_force_checkbox").click(function(e){
-    if($(this).is(":checked"))
-    {
-      $("#force_search_select").removeAttr("disabled");
-    } else {
-      $("#force_search_select").attr("disabled", true);
-    }
-  });
-  
-  $("#links_right a").click(function(e){
-    switchSearch($(e.currentTarget));
-  });
-
-  function switchSearch(el, override)
-  {
-    var clicked = (typeof override == "undefined") ? el.attr("rel") : override,
-        visible = $("form:visible")
-    if($("form#"+clicked).is(":visible"))
-    {
-      return
-    } else {
-      visible.fadeOut("fast", function(e){
-        $("form#"+clicked).fadeIn("fast")
-      })
-    }
-  }
-  
-  $(".help_tabs li a").click(function(e){
-    var tabs = ["artists_help_link", "tracks_help_link", "genres_help_link"];
-    var link = $(this);
-    if(link.parent().hasClass("active"))
-    {
-      return;
-    } else {
-      link.parent().siblings(".active").removeClass("active");
-      link.parent().addClass("active");
-      $(".help_content").children(".active").hide(0, function(){
-        $(this).removeClass("active");
-        $("."+link.attr("rel")+"_content").show(0, function(){
-          $(this).addClass("active");
-        });
-      });
-    }  
-  });
-  
-  $(".help_content a.example").click(function(e){
-    e.preventDefault();
-    $("#help").slideToggle(400, "easeOutCubic");
-    if($(this).attr("rel") === "discover")
-    {
-      switchSearch(null, "band_search")
-      $("input#name").val(stripTags($(this).html(), "strong"));
-      search();
-    }
-    else if($(this).attr("rel") === "hot")
-    {
-      switchSearch(null, "tell_me_form");
-      $("input#tell_name").val(stripTags($(this).html(), "strong"))
-      hotSearch($("input#tell_name").val())
-    }
-    else if($(this).attr("rel") === "history")
-    {
-      switchSearch(null, "history_form");
-      $("input#history_name").val(stripTags($(this).html(), "strong"));
-      influenceSearchType();
-    }
-  });
-  
-  function changePlaceholder()
-  {
-    if(!searchInput.is(":focus"))
-    {
-      placeholders = ["The Beatles", "genre: rock", "15 Step by Radiohead"];
-      searchInput.attr("placeholder", placeholders[index]);
-      if(index === placeholders.length)
-      {
-        index = 0;
-      } else {
-        index++;
-      }
-    }
-  }
-  
-  /* Declarations */
+  var searchInput = $("input#name");
   var searchCount = 0,
       force,
       node,
@@ -197,7 +42,184 @@ $(document).ready(function(){
       leafIter = 0,
       rootIter = 0,
       strengthScale = d3.scale.sqrt().range([0,0.133]),
-      distanceScale = d3.scale.sqrt().domain([0,100]).range([20,80])
+      distanceScale = d3.scale.sqrt().domain([0,100]).range([20,80]),
+      placeholders = {
+        "discover":["The Beatles", "genre: rock", "Creep by Radiohead"],
+        "hot":["what's hot", "what's popular in New York"],
+        "history":["influenced Led Zeppelin", "did Nirvana influence"]
+      },
+      currentPlaceholderSet = "discover"
+      pIndex = 0;
+  //Hash search
+  if(window.location.hash.length)
+  {
+    var hash = window.location.hash;
+    hash = hash.split("/");
+    var hashSearchType = hash[1]
+    if(hashSearchType === "discover")
+    {
+      $("input#name").val(toTitleCase(hash[2].replace(/[+]/g, " ")));
+      search();
+    }
+    else if(hashSearchType === "hot")
+    {
+      if(typeof hash[2] !== "undefined" && hash[2].length > 0)
+      {
+        switchSearch(null, "hot")
+        var hashLocation = /\b(in|around|near)\s(the)*\s*(([A-z]+\s*)*)/
+        $("input#hot_name").val("What's Hot near "+toTitleCase(hash[2].replace(/[+]/g, " ")));
+        var hashExtract = $("input#hot_name").val().match(hashLocation)
+        locationSearch($("input#hot_name").val(), hashExtract)
+      } else {
+        switchSearch(null, "hot");
+        $("input#hot_name").val("What's Hot");
+        hotSearch($("input#hot_name").val())
+      }
+    }
+    else if(hashSearchType === "history")
+    {
+      switchSearch(null, "history")
+      var historyType = hash[2].split("?")
+      if(typeof historyType[1] === "undefined" || historyType[1].split("=")[1] === "1")
+      {
+        $("input#history_name").val("influenced " + toTitleCase(historyType[0].replace(/[+]/g, " ")))
+        getBeginYear(historyType[0], 1)
+      } else
+      {
+        $("input#history_name").val("did "+toTitleCase(historyType[0].replace(/[+]/g, " "))+" influence")
+        getBeginYear(historyType[0], 2)
+      }
+    } else {
+      showError("A redirect error occured");
+      console.log("A redirect error occured.");
+    }
+  }
+  
+  //Handlers
+  $("#advanced_search").click(function(){
+    e.preventDefault();
+    $("#adv_search_opts").slideToggle(400, "easeOutCubic");
+  });
+  
+  $(".about_link").click(function(e){
+    e.preventDefault();
+    if($("#help").is(":visible"))
+    {
+      $("#help").slideUp(400, "easeOutCubic", function(){
+        $("#about").slideToggle(400, "easeOutCubic");
+      });
+    } else{
+      $("#about").slideToggle(400, "easeOutCubic");
+    }
+  });
+  
+  $(".help_link").click(function(e){
+    e.preventDefault();
+    if($("#about").is(":visible"))
+    {
+      $("#about").slideUp(400, "easeOutCubic", function(){
+        $("#help").slideToggle(400, "easeOutCubic");
+      });
+    } else{
+      $("#help").slideToggle(400, "easeOutCubic");
+    }
+  });
+  
+  $("#active_force_checkbox").click(function(e){
+    if($(this).is(":checked"))
+    {
+      $("#force_search_select").removeAttr("disabled");
+    } else {
+      $("#force_search_select").attr("disabled", true);
+    }
+  });
+  
+  $("#links_right a").click(function(e){
+    e.preventDefault();
+    switchSearch($(e.currentTarget));
+  });
+
+  function switchSearch(el, override)
+  {
+    var clicked = (typeof override == "undefined") ? el.attr("rel") : override,
+        visible = $("form:visible")
+    if($("form#"+clicked).is(":visible"))
+    {
+      return;
+    } else {
+      visible.fadeOut("fast", function(e){
+        $("form#"+clicked).fadeIn("fast");
+        searchInput = $("form#"+clicked).find("input");
+        currentPlaceholderSet = clicked;
+        pIndex = 0;
+      })
+    }
+  }
+  
+  $(".help_tabs li a").click(function(e){
+    e.preventDefault();
+    var tabs = ["artists_help_link", "tracks_help_link", "genres_help_link"];
+    var link = $(this);
+    if(link.parent().hasClass("active"))
+    {
+      return;
+    } else {
+      link.parent().siblings(".active").removeClass("active");
+      link.parent().addClass("active");
+      $(".help_content").children(".active").hide(0, function(){
+        $(this).removeClass("active");
+        $("."+link.attr("rel")+"_content").show(0, function(){
+          $(this).addClass("active");
+        });
+      });
+    }  
+  });
+  
+  $(".help_content a.example").click(function(e){
+    e.preventDefault();
+    $("#help").slideToggle(400, "easeOutCubic");
+    if($(this).attr("rel") === "discover")
+    {
+      switchSearch(null, "discover")
+      $("input#name").val(stripTags($(this).html(), "strong"));
+      search();
+    }
+    else if($(this).attr("rel") === "hot")
+    {
+      switchSearch(null, "hot");
+      $("input#hot_name").val(stripTags($(this).html(), "strong"))
+      hotSearch($("input#hot_name").val())
+    }
+    else if($(this).attr("rel") === "history")
+    {
+      switchSearch(null, "history");
+      $("input#history_name").val(stripTags($(this).html(), "strong"));
+      influenceSearchType();
+    }
+  });
+  
+  function changePlaceholder(placeholders, index)
+  {
+    if(!searchInput.is(":focus"))
+    {
+      searchInput.attr("placeholder", placeholders[pIndex]);
+      pIndex++;
+      if(pIndex === placeholders.length)
+      {
+        pIndex = 0;
+      }
+    }
+  }
+  
+  var placeholderChange = setInterval(function(){changePlaceholder(placeholders[currentPlaceholderSet], pIndex)}, 3500)
+  
+  $("input").blur(function(){
+    placeholderChange = setInterval(function(){changePlaceholder(currentPlaceholderSet[currentPlaceHolderSet], pIndex)}, 3500)
+  });
+  
+  $("input").focus(function(){
+    clearInterval(placeholderChange)
+  })
   
   function resetGraph()
   {
@@ -223,7 +245,7 @@ $(document).ready(function(){
       .on("tick", tick);
   }
   
-  $("#band_search input").keypress(function(e){
+  $("#discover input").keypress(function(e){
     $(".search_error").hide();    
     if(e.which == 13)
     {
@@ -589,7 +611,6 @@ $(document).ready(function(){
      .style("font-size", "14px")
     
     fixTransitions()
-    $(".graph").fadeIn(100)  
   }
   
   $(document).on("click", "circle", function(n){
@@ -630,6 +651,19 @@ $(document).ready(function(){
    d3.selectAll(".fade").classed("fade", false).transition().style("opacity", "1.0");
    d3.selectAll("line.red").classed("red", false).transition().style("stroke", "#999");
   })
+  
+  $(document).on("dblclick", "circle", function(e){
+    e.preventDefault();
+    force.stop();
+    n = e.currentTarget.__data__;
+    var isHttp = /http[s]*:\/\//
+    if (isHttp.test(n.url))
+    {
+      window.open(n.url, "_newtab")
+    } else {
+      window.open("http://"+n.url, "_newtab")
+    }
+  });
    
   function addNodes(d, n)
   {
@@ -730,10 +764,10 @@ $(document).ready(function(){
       .alpha(0.4)
       .friction(0.65)
     fixTransitions();
-    //node.on("dblclick", function(n){window.location = "http://"+n.url})
     rootIter++
     leafIter++
   }   
+
   
   function fixTransitions(){
     var clock = setInterval(function(e){
@@ -773,7 +807,7 @@ $(document).ready(function(){
     
   } 
   
-  $("#tell_me_form input").keypress(function(e){
+  $("#hot input").keypress(function(e){
     $(".search_error").hide();
     if(e.which == 13)
     {
@@ -781,7 +815,7 @@ $(document).ready(function(){
       e.preventDefault();
       var whoIsHot = /(what[']*s)\s\b(hot|good|new|popular|trending)\b/i,
           location = /\b(in|around|near)\s(the)*\s*(([A-z.,+]+\s*)*)/i,
-          query = $("input#tell_name").val()
+          query = $("input#hot_name").val()
 
       if(whoIsHot.test(query))
       {
@@ -876,7 +910,7 @@ $(document).ready(function(){
     }   
   } 
    
-  $("#history_form input").keypress(function(e){
+  $("#history input").keypress(function(e){
     $(".search_error").hide();
     if(e.which == 13)
     {
