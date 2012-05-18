@@ -2,9 +2,9 @@ $(document).ready(function(){
   var svg = d3.select(".canvas_container").append("svg:svg")
         .attr("class", "graph")
         .attr("width", 960)
-        .attr("height", 720);
-  var searchInput = $("input#name");
-  var searchCount = 0,
+        .attr("height", 720),
+      searchInput = $("input#name"),
+      searchCount = 0,
       force,
       node,
       link,
@@ -25,7 +25,7 @@ $(document).ready(function(){
         {x: 250, y: 500},
         {x: 450, y: 500},
         {x: 650, y: 500},
-        {x: 850, y: 500},
+        {x: 850, y: 500}
       ],
       rootFoci = [
         {x: 250, y: 162},
@@ -622,37 +622,9 @@ $(document).ready(function(){
       var requestURL = getRequestUrl("artist.getsimilar") + "&format=json&artist="+n.name+"&autocorrect=1&limit=10&api_key="+api
         d3.json(requestURL, function(d){
           addNodes(d, n)
-        })
+        });
     }
-  });
-  
-  $(document).on("mouseover", "circle", function(e){
-      n = e.target.__data__;
-      d3.select("circle."+n.id).classed("linked_node", true)
-      link.each(function(d,i){
-        if(d.target.index === n.index || d.source.index === n.index)
-        {
-          d3.select(this).classed("red", true).transition().style("stroke", "red")
-          d3.select("circle."+d.source.id).classed("linked_node", true)
-          d3.select("circle."+d.target.id).classed("linked_node", true)
-          d3.select("text."+d.source.id).classed("linked_text", true)
-          d3.select("text."+d.target.id).classed("linked_text", true)
-        }
-      })
-      
-      d3.selectAll("circle").filter(":not(.linked_node)").classed("fade", true).transition().style("opacity", "0.5")
-      d3.selectAll("text").filter(":not(.linked_text)").classed("fade", true).transition().style("opacity", "0.5") 
-  });
-   
-  $(document).on("mouseout", "circle", function(e){
-   n = e.target.__data__;
-   d3.selectAll(".linked_node").classed("linked_node", false);
-   d3.selectAll(".linked_text").classed("linked_text", false);
-   d3.selectAll(".fade").classed("fade", false).transition().style("opacity", "1.0");
-   d3.selectAll("line.red").classed("red", false).transition().style("stroke", "#999");
-  })
-  
-  $(document).on("dblclick", "circle", function(e){
+  }).on("dblclick", "circle", function(n){
     e.preventDefault();
     force.stop();
     n = e.currentTarget.__data__;
@@ -663,6 +635,27 @@ $(document).ready(function(){
     } else {
       window.open("http://"+n.url, "_newtab")
     }
+  }).on("mouseover", "circle", function(e){
+    n = e.target.__data__;
+    d3.select("circle."+n.id).classed("linked_node", true)
+    link.each(function(d,i){
+      if(d.target.index === n.index || d.source.index === n.index)
+      {
+        d3.select(this).classed("red", true).transition().style("stroke", "red")
+        d3.select("circle."+d.source.id).classed("linked_node", true)
+        d3.select("circle."+d.target.id).classed("linked_node", true)
+        d3.select("text."+d.source.id).classed("linked_text", true)
+        d3.select("text."+d.target.id).classed("linked_text", true)
+      }
+    });
+    d3.selectAll("circle").filter(":not(.linked_node)").classed("fade", true).transition().style("opacity", "0.5")
+    d3.selectAll("text").filter(":not(.linked_text)").classed("fade", true).transition().style("opacity", "0.5")
+  }).on("mouseout", "circle", function(e){
+    n = e.target.__data__;
+    d3.selectAll(".linked_node").classed("linked_node", false);
+    d3.selectAll(".linked_text").classed("linked_text", false);
+    d3.selectAll(".fade").classed("fade", false).transition().style("opacity", "1.0");
+    d3.selectAll("line.red").classed("red", false).transition().style("stroke", "#999");
   });
    
   function addNodes(d, n)
@@ -768,7 +761,6 @@ $(document).ready(function(){
     leafIter++
   }   
 
-  
   function fixTransitions(){
     var clock = setInterval(function(e){
       if(force.alpha() < 0.0051)
@@ -813,7 +805,7 @@ $(document).ready(function(){
     {
       searchCount = 0;
       e.preventDefault();
-      var whoIsHot = /(what[']*s)\s\b(hot|good|new|popular|trending)\b/i,
+      var whoIsHot = /(what[\']*s)\s\b(hot|good|new|popular|trending)\b/i,
           location = /\b(in|around|near)\s(the)*\s*(([A-z.,+]+\s*)*)/i,
           query = $("input#hot_name").val()
 
