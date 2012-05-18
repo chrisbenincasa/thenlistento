@@ -469,6 +469,9 @@ line.dashed
 .search_permalink
 {
   font-size: 12pt !important;
+  display: inline-block !important;
+  width: 300px !important;
+  vertical-align: baseline;
 }
 
 .tweet_button
