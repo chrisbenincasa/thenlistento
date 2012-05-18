@@ -15,6 +15,11 @@ function getEchoNestApi()
   return "8S6ECJEMIGXABYTXE"
 }
 
+function getGoogleApi()
+{
+  return "AIzaSyAB7n-BQCLR3ZoDirh8c6omfsGSId3rvcw";
+}
+
 function getRequestUrl(method)
 {
   switch(method)
