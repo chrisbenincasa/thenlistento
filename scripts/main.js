@@ -229,7 +229,6 @@ $(document).ready(function(){
     {
       searchCount = 0;
       e.preventDefault();
-      $(".graph").fadeOut(100);      
       search();
       return false;
     }
@@ -405,7 +404,7 @@ $(document).ready(function(){
   function updateShareButtons()
   {
     var twitterUrl = "https://twitter.com/share?url=",
-        link = encodeURIComponent("http://www.google.com"),
+        link = encodeURIComponent(window.location.href),
         text = encodeURIComponent("Share"),
         facebookUrl = "http://www.facebook.com/sharer.php?u="
     $(".tweet_button").attr("href", twitterUrl + link + "&text=" + text)
@@ -731,7 +730,7 @@ $(document).ready(function(){
       .alpha(0.4)
       .friction(0.65)
     fixTransitions();
-    node.on("dblclick", function(n){window.location = "http://"+n.url})
+    //node.on("dblclick", function(n){window.location = "http://"+n.url})
     rootIter++
     leafIter++
   }   
