@@ -25,11 +25,10 @@ As mentioned in the overview, ThenListenTo can understand a variety of different
 
 ##Features to be Added
 
-* ~~Proper error handling~~
-* Advanced Search Options  
-    * ~~Number of artists to return~~
-    * Search for multiple artists
-    * Color
-* Caching of results for faster request times  
-* Artist image in nodes  
-* ~~Prettier interface~~ 
+* Storing of queries for data collection
+* Recent searches on home page - real-time or long polling..?
+* Tag cloud view for searches -- toggle between graph and cloud
+* Search suggestions/autocomplete
+* Connect last.fm account -- results based on user name. comprehensive overview of musical tastes and recommendations
+* Feedback form? Bug reporting?
+* Optimization
