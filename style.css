@@ -135,14 +135,17 @@ select
   margin-bottom: 10px;
 }
 
-#links_left
+.head_wrap
 {
-  padding: 10px 0 0 20px;
+  padding: 10px 15px;
+  background-color: teal;
+  border-bottom: 2px darkgray solid;
+  margin-bottom: 5px;
 }
 
-#links_right
+.head_wrap a
 {
-  padding: 10px 20px 0 0;
+  color: white;
 }
 
 .links_wrap a
@@ -178,17 +181,16 @@ select
   margin: 0 auto;
 }
 
-.header_container
+.search_container
 {
   margin: 0 auto;
   /*padding: 20px 0 0;*/
   /*width: 800px;*/
   text-align: center;
   position: relative;
-  height: 100%;
 }
 
-.header_container h2, form
+.search_container h2, form
 {
   display: inline;
 }
